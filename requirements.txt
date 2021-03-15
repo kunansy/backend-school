@@ -1,0 +1,5 @@
+sanic==20.12.2
+schematics==2.1.0
+aiopg==1.1.0
+pytest==6.2.2
+sanic_transmute==0.1.3
