@@ -3,3 +3,4 @@ schematics==2.1.0
 aiopg==1.1.0
 pytest==6.2.2
 sanic_transmute==0.1.3
+environs==9.3.1
