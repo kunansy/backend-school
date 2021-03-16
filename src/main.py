@@ -20,10 +20,12 @@ async def home(request: Request):
 
 
 if __name__ == "__main__":
+    debug = env.bool('DEBUG', False)
+
     # use all server power but don't destroy developer's
     # computer, means use just one worker on his machine
-    workers = 2 * os.cpu_count() * (not env.bool('DEBUG')) + 1
-    logger_level = 'DEBUG' if env.bool('DEBUG') else 'INFO'
+    workers = 2 * os.cpu_count() * (not debug) + 1
+    logger_level = 'DEBUG' if debug else 'INFO'
 
     logging.getLogger('sanic.root').setLevel(logger_level)
     logging.getLogger('sanic.access').setLevel(logger_level)
@@ -31,7 +33,7 @@ if __name__ == "__main__":
     params = {
         'host': env('HOST'),
         'port': env.int('PORT'),
-        'debug': env.bool('DEBUG'),
+        'debug': debug,
         'access_log': env.bool('ACCESS_LOG'),
         'workers': workers
     }
