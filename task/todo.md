@@ -4,5 +4,5 @@
 - [ ] create ERD of the database
 - [ ] install and configure PostgreSQL
 - [ ] install and configure pgbouncer
-- [ ] install and configure ASGI
+- [x] ~~install and configure ASGI~~ Application server is built into Sanic
 - [ ] configure systemd to restart the service after rebooting
