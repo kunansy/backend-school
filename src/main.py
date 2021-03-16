@@ -1,6 +1,6 @@
 #!/usr/bin/env python3
 
-import argparse
+import os
 
 from environs import Env
 from sanic import Sanic
@@ -19,17 +19,9 @@ async def home(request: Request):
 
 
 if __name__ == "__main__":
-    parser = argparse.ArgumentParser(
-        description=""
-    )
-    parser.add_argument(
-        '--debug',
-        help="If true run sanic in debug mode",
-        action="store_true",
-        default=False,
-        dest="debug"
-    )
-    args = parser.parse_args()
+    # use all server power but don't destroy developer's
+    # computer, means use just one worker on his machine
+    workers = 2 * os.cpu_count() * (not env('DEBUG')) + 1
 
     params = {
         'host': env('HOST'),
