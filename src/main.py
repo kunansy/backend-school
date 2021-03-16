@@ -2,11 +2,15 @@
 
 import argparse
 
+from environs import Env
 from sanic import Sanic
 from sanic.request import Request
 from sanic.response import json
 
+
 app = Sanic(__name__)
+env = Env()
+env.read_env()
 
 
 @app.route("/")
@@ -27,4 +31,11 @@ if __name__ == "__main__":
     )
     args = parser.parse_args()
 
-    app.run(host="0.0.0.0", port=8080, debug=args.debug)
+    params = {
+        'host': env('HOST'),
+        'port': env.int('PORT'),
+        'debug': env.bool('DEBUG'),
+        'access_log': env.bool('ACCESS_LOG'),
+        'workers': workers
+    }
+    app.run(**params)
