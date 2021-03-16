@@ -30,11 +30,10 @@ if __name__ == "__main__":
     logging.getLogger('sanic.root').setLevel(logger_level)
     logging.getLogger('sanic.access').setLevel(logger_level)
 
-    params = {
-        'host': env('HOST'),
-        'port': env.int('PORT'),
-        'debug': debug,
-        'access_log': env.bool('ACCESS_LOG'),
-        'workers': workers
-    }
-    app.run(**params)
+    app.run(
+        host=env('HOST'),
+        port=env.int('PORT'),
+        debug=debug,
+        access_log=env.bool('ACCESS_LOG'),
+        workers=workers
+    )
