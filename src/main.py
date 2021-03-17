@@ -3,7 +3,7 @@ import logging
 import os
 
 from environs import Env
-from sanic import Sanic
+from sanic import Sanic, response
 from sanic.request import Request
 
 import logger
@@ -14,9 +14,34 @@ env = Env()
 env.read_env()
 
 
-@app.route("/")
-async def home(request: Request):
-    return json({"Method": request.method})
+@app.route('/couriers', methods=['POST'])
+async def add_couriers(request: Request) -> response.HTTPResponse:
+    pass
+
+
+@app.route('/couriers/<courier_id>', methods=['PATCH'])
+async def update_courier(request: Request, courier_id) -> response.HTTPResponse:
+    pass
+
+
+@app.route('/couriers/<courier_id>', methods=['GET'])
+async def get_courier(request: Request, courier_id) -> response.HTTPResponse:
+    pass
+
+
+@app.route('/orders', methods=['POST'])
+async def add_orders(request: Request) -> response.HTTPResponse:
+    pass
+
+
+@app.route('/orders/assign', methods=['POST'])
+async def couriers(request: Request) -> response.HTTPResponse:
+    pass
+
+
+@app.route('/orders/complete', methods=['POST'])
+async def couriers(request: Request) -> response.HTTPResponse:
+    pass
 
 
 if __name__ == "__main__":
