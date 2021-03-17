@@ -60,5 +60,6 @@ if __name__ == "__main__":
         port=env.int('PORT'),
         debug=debug,
         access_log=env.bool('ACCESS_LOG'),
-        workers=workers
+        workers=workers,
+        auto_reload=True
     )
