@@ -9,7 +9,7 @@ from sanic.request import Request
 from uvloop.loop import Loop
 
 import logger
-
+import db_api
 
 app = Sanic(__name__, log_config=logger.LOGGING_CONFIG)
 env = Env()
