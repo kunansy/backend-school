@@ -68,7 +68,10 @@ class Courier(BaseModel):
     @validator('working_hours')
     def working_hours_validator(cls, value: list[str]) -> list[TimeSpan]:
         # TODO: ISO 8601, RFC 3339
-        pass
+        return [
+            TimeSpan(working_hours)
+            for working_hours in value
+        ]
 
 
 @app.listener('after_server_start')
