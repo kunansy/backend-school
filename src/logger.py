@@ -1,17 +1,26 @@
 import sys
 
+from environs import Env
+
+
+env = Env()
+env.read_env()
+
+BASE_MESSAGE_FORMAT = "[%(asctime)s] [%(name)s:%(levelname)s] [%(module)s:%(funcName)s():%(process)d]"
+DATE_FORMAT = "%d-%m-%Y %H:%M:%S"
+FILE_LOGGING = 'INFO' if env.bool('FILE_LOGGING') else 'ERROR'
 
 LOGGING_CONFIG = {
     "version": 1,
     "disable_existing_loggers": False,
     "formatters": {
         "simple": {
-            "format": "[%(asctime)s] [%(name)s:%(levelname)s] [%(module)s:%(funcName)s():%(process)d] %(message)s ",
-            "datefmt": "%d-%m-%Y %H:%M:%S"
+            "format": f"{BASE_MESSAGE_FORMAT} %(message)s",
+            "datefmt": DATE_FORMAT
         },
         "access": {
-            "format": "[%(asctime)s] [%(name)s:%(levelname)s] [%(module)s:%(funcName)s():%(process)d] %(request)s, status: %(status)s, size: %(byte)sb",
-            "datefmt": "%d-%m-%Y %H:%M:%S"
+            "format": f"{BASE_MESSAGE_FORMAT} %(request)s, status: %(status)s, size: %(byte)sb",
+            "datefmt": DATE_FORMAT
         }
     },
     "handlers": {
@@ -25,13 +34,13 @@ LOGGING_CONFIG = {
             "class": "logging.FileHandler",
             "formatter": "simple",
             "filename": "log/sanic.log",
-            "level": "ERROR"
+            "level": FILE_LOGGING
         },
         "errorFile": {
             "class": "logging.FileHandler",
             "formatter": "simple",
             "filename": "log/sanic-error.log",
-            "level": "ERROR"
+            "level": FILE_LOGGING
         },
         "accessStream": {
             "class": "logging.StreamHandler",
@@ -42,7 +51,7 @@ LOGGING_CONFIG = {
             "class": "logging.FileHandler",
             "formatter": "access",
             "filename": "log/sanic-access.log",
-            "level": "ERROR"
+            "level": FILE_LOGGING
         }
     },
     "loggers": {
