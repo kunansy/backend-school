@@ -3,6 +3,7 @@ import logging
 import os
 
 from environs import Env
+from pydantic import BaseModel, validator, conlist, PositiveInt
 from sanic import Sanic, response
 from sanic.request import Request
 from uvloop.loop import Loop
@@ -13,6 +14,28 @@ import logger
 app = Sanic(__name__, log_config=logger.LOGGING_CONFIG)
 env = Env()
 env.read_env()
+
+
+class Courier(BaseModel):
+    courier_id: PositiveInt()
+    courier_type: str
+    regions: conlist(item_type=PositiveInt())
+    working_hours: conlist(item_type=str)
+
+    @validator('courier_type')
+    def courier_type_validator(cls, value: str) -> str:
+        possible_courier_types = db_api.get_courier_types()
+
+        if (value := value.lower()) not in possible_courier_types:
+            raise ValueError
+        return value
+
+    @validator('working_hours')
+    def working_hours_validator(cls, value: list[str]) -> list[datetime.time]:
+        # TOOD: ISO 8601, RFC 3339
+        pass
+
+
 
 
 @app.listener('after_server_start')
