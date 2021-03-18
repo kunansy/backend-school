@@ -56,7 +56,7 @@ class Courier(BaseModel):
     courier_id: PositiveInt()
     courier_type: str
     regions: conlist(item_type=PositiveInt())
-    working_hours: conlist(item_type=str)
+    working_hours: list[str]
 
     @validator('courier_type')
     def courier_type_validator(cls,
