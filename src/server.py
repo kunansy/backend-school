@@ -74,6 +74,28 @@ class Courier(BaseModel):
         ]
 
 
+class Order(BaseModel):
+    order_id: PositiveInt()
+    weight: PositiveInt()
+    region: PositiveInt()
+    delivery_hours: list[str]
+
+    @validator('weight')
+    def weight_validator(cls,
+                         value: int) -> int:
+        if 0.01 <= value <= 50:
+            return value
+        raise ValueError
+
+    @validator('delivery_hours')
+    def working_hours_validator(cls,
+                                value: list[str]) -> list[TimeSpan]:
+        return [
+            TimeSpan(working_hours)
+            for working_hours in value
+        ]
+
+
 @app.listener('after_server_start')
 async def create_db_connection(app: Sanic,
                                loop: Loop) -> None:
