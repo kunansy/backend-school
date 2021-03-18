@@ -63,9 +63,9 @@ class Courier(BaseModel):
                                value: str) -> str:
         possible_courier_types = db_api.get_courier_types()
 
-        if (value := value.lower()) not in possible_courier_types:
-            raise ValueError
-        return value
+        if (value := value.lower()) in possible_courier_types:
+            return value
+        raise ValueError
 
     @validator('working_hours')
     def working_hours_validator(cls,
