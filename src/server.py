@@ -18,7 +18,7 @@ env = Env()
 env.read_env()
 
 
-class TimeSpan(time):
+class TimeSpan:
     TIME_FORMAT = "%H:%M"
 
     def __init__(self,
@@ -46,6 +46,9 @@ class TimeSpan(time):
 
     def __or__(self, other) -> bool:
         return self.is_intercept(other)
+
+    def __repr__(self) -> str:
+        return f"{self.start}-{self.stop}"
 
 
 class Courier(BaseModel):
