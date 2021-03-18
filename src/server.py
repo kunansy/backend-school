@@ -5,6 +5,7 @@ import os
 from environs import Env
 from sanic import Sanic, response
 from sanic.request import Request
+from uvloop.loop import Loop
 
 import logger
 
@@ -12,6 +13,18 @@ import logger
 app = Sanic(__name__, log_config=logger.LOGGING_CONFIG)
 env = Env()
 env.read_env()
+
+
+@app.listener('after_server_start')
+async def create_db_connection(app: Sanic,
+                               loop: Loop) -> None:
+    pass
+
+
+@app.listener('after_server_stop')
+async def close_db_connection(app: Sanic,
+                              loop: Loop) -> None:
+    pass
 
 
 @app.route('/couriers', methods=['POST'])
