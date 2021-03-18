@@ -58,7 +58,8 @@ class Courier(BaseModel):
     working_hours: conlist(item_type=str)
 
     @validator('courier_type')
-    def courier_type_validator(cls, value: str) -> str:
+    def courier_type_validator(cls,
+                               value: str) -> str:
         possible_courier_types = db_api.get_courier_types()
 
         if (value := value.lower()) not in possible_courier_types:
@@ -66,7 +67,8 @@ class Courier(BaseModel):
         return value
 
     @validator('working_hours')
-    def working_hours_validator(cls, value: list[str]) -> list[TimeSpan]:
+    def working_hours_validator(cls,
+                                value: list[str]) -> list[TimeSpan]:
         # TODO: ISO 8601, RFC 3339
         return [
             TimeSpan(working_hours)
