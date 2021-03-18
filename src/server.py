@@ -1,6 +1,7 @@
 #!/usr/bin/env python3
 import logging
 import os
+from datetime import datetime, time
 
 from environs import Env
 from pydantic import BaseModel, validator, conlist, PositiveInt
@@ -8,12 +9,43 @@ from sanic import Sanic, response
 from sanic.request import Request
 from uvloop.loop import Loop
 
-import logger
 import db_api
+import logger
+
 
 app = Sanic(__name__, log_config=logger.LOGGING_CONFIG)
 env = Env()
 env.read_env()
+
+
+class TimeSpan(time):
+    TIME_FORMAT = "%H:%M"
+
+    def __init__(self,
+                 value: str) -> None:
+        start, stop = value.split('-')
+
+        self.__start = TimeSpan.parse_time(start)
+        self.__stop = TimeSpan.parse_time(stop)
+
+    @property
+    def start(self) -> time:
+        return self.__start
+
+    @property
+    def stop(self) -> time:
+        return self.__stop
+
+    @classmethod
+    def parse_time(cls,
+                   time_string: str) -> time:
+        return datetime.strptime(time_string, cls.TIME_FORMAT).time()
+
+    def is_intercept(self, other) -> bool:
+        return self.start >= other.start and self.stop <= other.stop
+
+    def __or__(self, other) -> bool:
+        return self.is_intercept(other)
 
 
 class Courier(BaseModel):
@@ -31,11 +63,9 @@ class Courier(BaseModel):
         return value
 
     @validator('working_hours')
-    def working_hours_validator(cls, value: list[str]) -> list[datetime.time]:
-        # TOOD: ISO 8601, RFC 3339
+    def working_hours_validator(cls, value: list[str]) -> list[TimeSpan]:
+        # TODO: ISO 8601, RFC 3339
         pass
-
-
 
 
 @app.listener('after_server_start')
