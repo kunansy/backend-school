@@ -52,7 +52,7 @@ class TimeSpan:
                f"{self.stop.strftime(self.TIME_FORMAT)}"
 
 
-class Courier(BaseModel):
+class CourierModel(BaseModel):
     courier_id: PositiveInt()
     courier_type: str
     regions: conlist(item_type=PositiveInt())
@@ -77,7 +77,7 @@ class Courier(BaseModel):
         ]
 
 
-class Order(BaseModel):
+class OrderModel(BaseModel):
     order_id: PositiveInt()
     weight: PositiveInt()
     region: PositiveInt()
