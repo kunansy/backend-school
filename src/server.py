@@ -48,7 +48,8 @@ class TimeSpan:
         return self.is_intercept(other)
 
     def __repr__(self) -> str:
-        return f"{self.start}-{self.stop}"
+        return f"{self.start.strftime(self.TIME_FORMAT)}-" \
+               f"{self.stop.strftime(self.TIME_FORMAT)}"
 
 
 class Courier(BaseModel):
