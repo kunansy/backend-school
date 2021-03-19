@@ -7,6 +7,22 @@ from pydantic import BaseModel, PositiveInt, conlist, validator
 from src import db_api
 
 
+VALIDATION_ERROR_TEMPLATE = {
+    "validation_error": {}
+}
+
+
+def validation_error(field_name: str,
+                     ids: list[int]) -> dict:
+    error_message = VALIDATION_ERROR_TEMPLATE.copy()
+    error_message['validation_error'][field_name] = [
+        {"id": id_}
+        for id_ in ids
+    ]
+
+    return error_message
+
+
 class TimeSpan:
     TIME_FORMAT = "%H:%M"
 
