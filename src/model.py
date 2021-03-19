@@ -85,8 +85,8 @@ class OrderModel(BaseModel):
         raise ValueError
 
     @validator('delivery_hours')
-    def working_hours_validator(cls,
-                                value: list[str]) -> list[TimeSpan]:
+    def delivery_hours_validator(cls,
+                                 value: list[str]) -> list[TimeSpan]:
         return [
             TimeSpan(working_hours)
             for working_hours in value
