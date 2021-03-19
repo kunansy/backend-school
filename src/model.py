@@ -1,6 +1,6 @@
 from datetime import time, datetime
 
-from pydantic import BaseModel, PositiveInt, conlist, validator
+from pydantic import BaseModel, PositiveInt, conlist, validator, conint
 
 from src import db_api
 
@@ -59,9 +59,12 @@ class TimeSpan:
 
 
 class CourierModel(BaseModel):
-    courier_id: PositiveInt()
+    class Config:
+        extra = 'forbid'
+
+    courier_id: conint(strict=True, gt=0)
     courier_type: str
-    regions: conlist(item_type=PositiveInt())
+    regions: conlist(item_type=conint(strict=True, gt=0))
     working_hours: list[str]
 
     @validator('courier_type')
