@@ -5,6 +5,7 @@ import os
 from environs import Env
 from pydantic import ValidationError
 from sanic import Sanic, response
+from sanic.exceptions import ServerError
 from sanic.log import error_logger
 from sanic.request import Request
 from uvloop.loop import Loop
