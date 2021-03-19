@@ -81,7 +81,7 @@ LOGGING_CONFIG = {
             "formatter": "simple",
             "filters": ["errorFilter"],
             "filename": LOG_FOLDER / "sweets_shop_error.log",
-            "level": FILE_LOGGING
+            "level": "WARNING"
         },
         "accessStream": {
             "class": "logging.StreamHandler",
