@@ -9,9 +9,9 @@ from sanic.log import error_logger
 from sanic.request import Request
 from uvloop.loop import Loop
 
-import logging_config
 import db_api
-from src.model import CourierModel, validation_error
+import logging_config
+from model import CourierModel, validation_error
 
 
 PATCHABLE_FIELDS = [
