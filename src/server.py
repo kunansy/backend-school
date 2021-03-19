@@ -8,7 +8,7 @@ from sanic import Sanic, response
 from sanic.request import Request
 from uvloop.loop import Loop
 
-import logger
+import logging_config
 import db_api
 from src.model import CourierModel, validation_error
 
@@ -33,7 +33,7 @@ def is_json_patching_courier_valid(json_dict: dict) -> list[str]:
     return list(json_dict.keys())
 
 
-app = Sanic(__name__, log_config=logger.LOGGING_CONFIG)
+app = Sanic(__name__, log_config=logging_config.LOGGING_CONFIG)
 env = Env()
 env.read_env()
 
