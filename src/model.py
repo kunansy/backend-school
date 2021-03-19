@@ -35,7 +35,7 @@ class TimeSpan:
 
     def is_intercept(self,
                      other: TimeSpan) -> bool:
-        return self.start >= other.start and self.stop <= other.stop
+        return self.start > other.start and self.stop < other.stop
 
     def __or__(self, 
                other: TimeSpan) -> bool:
