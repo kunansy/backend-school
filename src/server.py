@@ -115,6 +115,27 @@ async def couriers(request: Request) -> response.HTTPResponse:
     pass
 
 
+@app.exception(ServerError, Exception)
+async def error_handler(request: Request,
+                        exception: Exception) -> response.HTTPResponse:
+    try:
+        error_json = exception.json()
+    except AttributeError:
+        error_json = ''
+
+    context = {
+        "ok": False,
+        "wrong_request": request.json,
+        "error": {
+            "type": exception.__class__.__name__,
+            "text": str(exception),
+            "args": exception.args,
+            "json": error_json
+        }
+    }
+    return response.json(context, indent=4)
+
+
 if __name__ == "__main__":
     debug = env.bool('DEBUG', False)
 
