@@ -69,6 +69,13 @@ LOGGING_CONFIG = {
             "filename": LOG_FOLDER / "sweets_shop.log",
             "level": FILE_LOGGING
         },
+        "errorStream": {
+            "class": "logging.StreamHandler",
+            "formatter": "simple",
+            "filters": ["errorFilter"],
+            "stream": sys.stderr,
+            "level": "WARNING"
+        },
         "errorFile": {
             "class": "logging.FileHandler",
             "formatter": "simple",
@@ -101,7 +108,7 @@ LOGGING_CONFIG = {
         },
         "sanic.error": {
             "level": "ERROR",
-            "handlers": ["errorFile"]
+            "handlers": ["errorStream", "errorFile"]
         }
     }
 }
