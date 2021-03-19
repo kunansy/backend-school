@@ -3,35 +3,87 @@ import pytest
 from src.model import OrderModel, TimeSpan
 
 
-def test_order_with_right_fields():
+def test_right_fields():
     pass
 
 
-def test_order_with_zero_id():
+def test_extra_fields():
     pass
 
 
-def test_order_with_zero_weight():
+def test_lack_of_fields():
     pass
 
 
-def test_order_with_big_weight():
+def test_float_id():
     pass
 
 
-def test_order_with_zero_region():
+def test_string_id():
     pass
 
 
-def test_order_with_empty_region_list():
+def test_zero_id():
     pass
 
 
-def test_order_with_not_serializable_delivery_hours():
+def test_negative_id():
     pass
 
 
-def test_order_time_format():
+def test_float_weight():
+    pass
+
+
+def test_string_weight():
+    pass
+
+
+def test_zero_weight():
+    pass
+
+
+def test_negative_weight():
+    pass
+
+
+def test_big_weight():
+    pass
+
+
+def test_string_region():
+    pass
+
+
+def test_float_region():
+    pass
+
+
+def test_zero_region():
+    pass
+
+
+def test_negative_region():
+    pass
+
+
+def test_empty_region_list():
+    pass
+
+
+def test_not_serializable_delivery_hours():
+    pass
+
+
+def test_time_format():
+    pass
+
+
+def test_wrong_delivery_hours():
+    pass
+
+
+def test_several_delevery_hours():
     pass
 
 
