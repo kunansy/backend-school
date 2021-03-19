@@ -12,6 +12,27 @@ import logger
 import db_api
 from src.model import CourierModel, validation_error
 
+
+PATCHABLE_FIELDS = [
+    'courier_type', 'regions', 'working_hours'
+]
+
+
+def is_json_patching_courier_valid(json_dict: dict) -> list[str]:
+    """
+    Check whether the request to patch a courier valid,
+    means there are only particular fields and nothing else.
+
+    :param json_dict: json to validate.
+    :return: list of invalid fields if there are.
+    """
+    # TODO: make copy or not?
+    for field in PATCHABLE_FIELDS:
+        json_dict.pop(field)
+
+    return list(json_dict.keys())
+
+
 app = Sanic(__name__, log_config=logger.LOGGING_CONFIG)
 env = Env()
 env.read_env()
@@ -53,8 +74,24 @@ async def add_couriers(request: Request) -> response.HTTPResponse:
 
 
 @app.route('/couriers/<courier_id>', methods=['PATCH'])
-async def update_courier(request: Request, courier_id) -> response.HTTPResponse:
-    pass
+async def update_courier(request: Request,
+                         courier_id: int) -> response.HTTPResponse:
+    courier = await db_api.get_courier(courier_id)
+
+    if invalid_fields := is_json_patching_courier_valid(request.json):
+        # logger.error(f"Only {PATCHABLE_FIELDS} might be "
+        #              f"updated, but {invalid_fields} found")
+        return response.HTTPResponse(400)
+
+    try:
+        updated_courier = CourierModel(**courier.json(), **request.json)
+    except ValidationError as e:
+        # logger.error(e.json(indent=4))
+        return response.HTTPResponse(status=400)
+
+    await db_api.update_courier(updated_courier)
+
+    return response.json(updated_courier.json())
 
 
 @app.route('/couriers/<courier_id>', methods=['GET'])
