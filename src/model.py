@@ -17,6 +17,9 @@ class TimeSpan:
         self.__start = TimeSpan.parse_time(start)
         self.__stop = TimeSpan.parse_time(stop)
 
+        if start >= stop:
+            raise ValueError("Start must me be less than stop")
+
     @property
     def start(self) -> time:
         return self.__start
