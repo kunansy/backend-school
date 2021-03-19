@@ -3,12 +3,13 @@ import logging
 import os
 
 from environs import Env
+from pydantic import ValidationError
 from sanic import Sanic, response
 from sanic.request import Request
 from uvloop.loop import Loop
 
 import logger
-
+from src.model import CourierModel, validation_error
 
 app = Sanic(__name__, log_config=logger.LOGGING_CONFIG)
 env = Env()
@@ -29,7 +30,24 @@ async def close_db_connection(app: Sanic,
 
 @app.route('/couriers', methods=['POST'])
 async def add_couriers(request: Request) -> response.HTTPResponse:
-    pass
+    couriers, invalid_couriers_id = [], []
+    for courier in request.json['data']:
+        try:
+            courier = CourierModel(**courier)
+        except ValidationError as e:
+            invalid_couriers_id += [courier.get('id', -1)]
+            # logger.error(e.json(indent=4))
+        else:
+            couriers += [courier]
+
+    if invalid_couriers_id:
+        # logger.error("Request rejected, it contains invalid "
+        #              f"couriers ({len(invalid_couriers_id)})")
+        context = validation_error('couriers', invalid_couriers_id)
+        return response.json(context, status=400)
+
+    # await db_api.add_couriers(couriers)
+    return response.json(couriers, status=201)
 
 
 @app.route('/couriers/<courier_id>', methods=['PATCH'])
