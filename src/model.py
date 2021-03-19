@@ -1,5 +1,3 @@
-from __future__ import annotations
-
 from datetime import time, datetime
 
 from pydantic import BaseModel, PositiveInt, conlist, validator
@@ -49,12 +47,10 @@ class TimeSpan:
                    time_string: str) -> time:
         return datetime.strptime(time_string, cls.TIME_FORMAT).time()
 
-    def is_intercept(self,
-                     other: TimeSpan) -> bool:
+    def is_intercept(self, other) -> bool:
         return self.start > other.start and self.stop < other.stop
 
-    def __or__(self, 
-               other: TimeSpan) -> bool:
+    def __or__(self, other) -> bool:
         return self.is_intercept(other)
 
     def __repr__(self) -> str:
