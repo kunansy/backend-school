@@ -50,7 +50,7 @@ async def close_db_connection(app: Sanic,
     pass
 
 
-@app.route('/couriers', methods=['POST'])
+@app.post('/couriers')
 async def add_couriers(request: Request) -> response.HTTPResponse:
     couriers, invalid_couriers_id = [], []
     for courier in request.json['data']:
@@ -73,7 +73,7 @@ async def add_couriers(request: Request) -> response.HTTPResponse:
     return response.json(couriers, status=201)
 
 
-@app.route('/couriers/<courier_id>', methods=['PATCH'])
+@app.patch('/couriers/<courier_id>')
 async def update_courier(request: Request,
                          courier_id: int) -> response.HTTPResponse:
     courier = await db_api.get_courier(courier_id)
@@ -94,22 +94,22 @@ async def update_courier(request: Request,
     return response.json(updated_courier.json())
 
 
-@app.route('/couriers/<courier_id>', methods=['GET'])
+@app.get('/couriers/<courier_id>')
 async def get_courier(request: Request, courier_id) -> response.HTTPResponse:
     pass
 
 
-@app.route('/orders', methods=['POST'])
+@app.post('/orders')
 async def add_orders(request: Request) -> response.HTTPResponse:
     pass
 
 
-@app.route('/orders/assign', methods=['POST'])
+@app.post('/orders/assign')
 async def couriers(request: Request) -> response.HTTPResponse:
     pass
 
 
-@app.route('/orders/complete', methods=['POST'])
+@app.post('/orders/complete')
 async def couriers(request: Request) -> response.HTTPResponse:
     pass
 
