@@ -1,5 +1,6 @@
 import os
 import sys
+from logging import Filter, LogRecord
 
 from environs import Env
 
@@ -18,9 +19,31 @@ try:
 except PermissionError as e:
     pass
 
+
+class DefaultFilter(Filter):
+    def __init__(self,
+                 levels: list[int] = None) -> None:
+        self._levels = levels or []
+        super().__init__(self.__class__.__name__)
+
+    def filter(self,
+               record: LogRecord) -> bool:
+        return record.levelno in self._levels
+
+
 LOGGING_CONFIG = {
     "version": 1,
     "disable_existing_loggers": False,
+    "filters": {
+        "internalFilter": {
+            "()": DefaultFilter,
+            "levels": [0, 10, 20]
+        },
+        "errorFilter": {
+            "()": DefaultFilter,
+            "levels": [30, 40, 50]
+        }
+    },
     "formatters": {
         "simple": {
             "format": f"{BASE_MESSAGE_FORMAT} %(message)s",
@@ -35,29 +58,34 @@ LOGGING_CONFIG = {
         "internalStream": {
             "class": "logging.StreamHandler",
             "formatter": "simple",
+            "filters": ["internalFilter"],
             "stream": sys.stderr,
             "level": "DEBUG"
         },
         "internalFile": {
             "class": "logging.FileHandler",
             "formatter": "simple",
+            "filters": ["internalFilter"],
             "filename": LOG_FOLDER / "sweets_shop.log",
             "level": FILE_LOGGING
         },
         "errorFile": {
             "class": "logging.FileHandler",
             "formatter": "simple",
+            "filters": ["errorFilter"],
             "filename": LOG_FOLDER / "sweets_shop_error.log",
             "level": FILE_LOGGING
         },
         "accessStream": {
             "class": "logging.StreamHandler",
             "formatter": "access",
+            "filters": ["internalFilter"],
             "level": "DEBUG"
         },
         "accessFile": {
             "class": "logging.FileHandler",
             "formatter": "access",
+            "filters": ["internalFilter"],
             "filename": LOG_FOLDER / "sweets_shop_access.log",
             "level": FILE_LOGGING
         }
