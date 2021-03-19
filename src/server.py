@@ -9,6 +9,7 @@ from sanic.request import Request
 from uvloop.loop import Loop
 
 import logger
+import db_api
 from src.model import CourierModel, validation_error
 
 app = Sanic(__name__, log_config=logger.LOGGING_CONFIG)
@@ -46,7 +47,8 @@ async def add_couriers(request: Request) -> response.HTTPResponse:
         context = validation_error('couriers', invalid_couriers_id)
         return response.json(context, status=400)
 
-    # await db_api.add_couriers(couriers)
+    await db_api.add_couriers(couriers)
+
     return response.json(couriers, status=201)
 
 
