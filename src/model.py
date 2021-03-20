@@ -103,3 +103,19 @@ class OrderModel(BaseModel):
             TimeSpan(working_hours)
             for working_hours in value
         ]
+
+
+class CompleteModel(BaseModel):
+    """ The model is expected to represent `complete` requests """
+    class Config:
+        extra = 'forbid'
+
+    courier_id: conint(strict=True, gt=0)
+    order_id: conint(strict=True, gt=0)
+    complete_time: str
+
+    @validator('complete_time')
+    def complete_time_validator(cls,
+                                value: str):
+        # TODO: here there's ISO<bla-bla-bla> standard
+        return value
