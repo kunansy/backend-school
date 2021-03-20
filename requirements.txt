@@ -1,5 +1,4 @@
 sanic==20.12.2
-schematics==2.1.0
 asyncpg==0.22.0
 pytest==6.2.2
 sanic-openapi==0.6.2
