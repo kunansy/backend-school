@@ -1,3 +1,5 @@
+from datetime import time
+
 import pytest
 
 from src.model import TimeSpan
@@ -29,31 +31,60 @@ def test_start_less_than_stop():
 
 
 def test_intercept_equal_to_or_with_true():
-    pass
+    t1, t2 = TimeSpan('12:10-13:50'), TimeSpan('13:40-14:10')
+
+    assert t1.is_intercept(t2) is t1 | t2 is True
 
 
 def test_intercept_equal_to_or_with_false():
-    pass
+    t1, t2 = TimeSpan('12:10-12:20'), TimeSpan('12:21-12:50')
+
+    assert t1.is_intercept(t2) is t1 | t2 is False
+
+
+def test_equality_of_operands_order():
+    t1, t2 = TimeSpan('12:10-12:20'), TimeSpan('12:21-12:50')
+
+    assert t1.is_intercept(t2) is t1 | t2 is False
+    assert t2.is_intercept(t1) is t2 | t1 is False
 
 
 def test_not_intercepting_spans():
-    pass
+    t1, t2 = TimeSpan('12:10-12:20'), TimeSpan('06:21-10:50')
+
+    assert t1 | t2 is False
 
 
 def test_equal_spans():
-    pass
+    t1, t2 = TimeSpan('12:10-12:20'), TimeSpan('12:10-12:20')
+
+    assert t1 | t2 is True
 
 
 def test_intercepting_spans():
-    pass
+    t1, t2 = TimeSpan('21:55-23:15'), TimeSpan('22:00-23:45')
+
+    assert t1 | t2 is True
+
+
+def test_one_span_inside_another():
+    t1, t2 = TimeSpan('10:55-23:15'), TimeSpan('12:00-19:45')
+
+    assert t1 | t2 is True
 
 
 def test_spans_with_the_same_start():
-    pass
+    t1, t2 = TimeSpan('21:55-22:15'), TimeSpan('21:55-23:45')
+
+    assert t1 | t2 is True
+    assert t1.start == t2.start == time(21, 55)
 
 
 def test_spans_with_the_same_stop():
-    pass
+    t1, t2 = TimeSpan('10:31-20:50'), TimeSpan('17:55-20:50')
+
+    assert t1 | t2 is True
+    assert t1.stop == t2.stop == time(20, 50)
 
 
 def test_repr():
