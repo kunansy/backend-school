@@ -12,8 +12,7 @@ from uvloop.loop import Loop
 
 import db_api
 import logging_config
-from model import CourierModel, validation_error
-
+from model import CourierModel, validation_error, OrderModel
 
 PATCHABLE_FIELDS = [
     'courier_type', 'regions', 'working_hours'
@@ -103,7 +102,31 @@ async def get_courier(request: Request, courier_id) -> response.HTTPResponse:
 
 @app.post('/orders')
 async def add_orders(request: Request) -> response.HTTPResponse:
-    pass
+    orders, invalid_orders_id = [], []
+    for order in request.json['data']:
+        try:
+            order = OrderModel(**order)
+        except ValidationError as e:
+            invalid_orders_id += [order.get('id', -1)]
+            error_logger.error(e.json(indent=4))
+        else:
+            orders += [order]
+
+    if invalid_orders_id:
+        error_logger.error("Request rejected, it contains invalid "
+                           f"orders ({len(invalid_orders_id)})")
+        context = validation_error('orders', invalid_orders_id)
+        return response.json(context, status=400)
+
+    await db_api.add_orders(orders)
+
+    added_orders = {
+        "orders": [
+            order.dict(include={'id'})
+            for order in orders
+        ]
+    }
+    return response.json(added_orders, status=201)
 
 
 @app.post('/orders/assign')
