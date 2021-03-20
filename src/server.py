@@ -71,7 +71,13 @@ async def add_couriers(request: Request) -> response.HTTPResponse:
 
     await db_api.add_couriers(couriers)
 
-    return response.json(couriers, status=201)
+    added_couriers = {
+        "couriers": [
+            courier.dict(include={'id'})
+            for courier in couriers
+        ]
+    }
+    return response.json(added_couriers, status=201)
 
 
 @app.patch('/couriers/<courier_id>')
