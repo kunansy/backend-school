@@ -92,7 +92,7 @@ class OrderModel(BaseModel):
         extra = 'forbid'
 
     order_id: conint(strict=True, gt=0)
-    weight: confloat(strict=True, ge=0.01, le=50)
+    weight: confloat(ge=0.01, le=50)
     region: conint(strict=True, gt=0)
     delivery_hours: list[str]
 
