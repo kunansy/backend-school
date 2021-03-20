@@ -130,8 +130,15 @@ async def add_orders(request: Request) -> response.HTTPResponse:
 
 
 @app.post('/orders/assign')
-async def couriers(request: Request) -> response.HTTPResponse:
-    pass
+async def assign(request: Request) -> response.HTTPResponse:
+    courier_id = request.json.get('courier_id', -1)
+
+    if (courier := db_api.get_courier(courier_id)) is None:
+        error_logger.error(f"Courier with {courier_id=} not found")
+        abort(400)
+
+    assigned_orders = await db_api.assign_orders(courier)
+    return response.json(assigned_orders)
 
 
 @app.post('/orders/complete')
