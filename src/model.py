@@ -96,13 +96,6 @@ class OrderModel(BaseModel):
     region: conint(strict=True, gt=0)
     delivery_hours: list[str]
 
-    @validator('weight')
-    def weight_validator(cls,
-                         value: int) -> int:
-        if 0.01 <= value <= 50:
-            return value
-        raise ValueError
-
     @validator('delivery_hours')
     def delivery_hours_validator(cls,
                                  value: list[str]) -> list[TimeSpan]:
