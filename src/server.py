@@ -12,7 +12,8 @@ from uvloop.loop import Loop
 
 import db_api
 import logging_config
-from model import CourierModel, validation_error, OrderModel
+from model import CourierModel, validation_error, OrderModel, CompleteModel
+
 
 PATCHABLE_FIELDS = [
     'courier_type', 'regions', 'working_hours'
@@ -153,8 +154,34 @@ async def assign(request: Request) -> response.HTTPResponse:
 
 
 @app.post('/orders/complete')
-async def couriers(request: Request) -> response.HTTPResponse:
-    pass
+async def complete(request: Request) -> response.HTTPResponse:
+    try:
+        complete = CompleteModel(**request.json)
+    except ValidationError as e:
+        error_logger.error(f"Invalid complete request\n{e.json(indent=4)}")
+        abort(400)
+
+    if (courier := await db_api.get_courier(complete.courier_id)) is None:
+        error_logger.error(f"Courier with {complete.courier_id} not found")
+        abort(400)
+    if (order := await db_api.get_order(complete.order_id)) is None:
+        error_logger.error(f"Order with {complete.order_id} not found")
+        abort(400)
+
+    if (assign_info := await db_api.assign_info(order.order_id)) is None:
+        error_logger.error(f"Order {order.order_id} was not assigned")
+        abort(400)
+
+    if (assigned_courier := assign_info.courier.courier_id) != courier.courier_id:
+        error_logger.error(
+            f"{order.order_id=} assigned to {assigned_courier.courier_id} "
+            f"courier, but {courier.courier_id} found"
+        )
+        abort(400)
+
+    await db_api.complete_order(complete)
+
+    return response.json(complete.dict(include={'courier_id'}))
 
 
 @app.exception(ServerError, Exception)
