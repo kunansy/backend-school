@@ -1,19 +1,27 @@
 import pytest
 from pydantic import ValidationError
 
-from src.model import CourierModel
-
+from src.model import CourierModel, TimeSpan
 
 TEST_DATA = {
     "courier_id": 12,
     "courier_type": 'foot',
     "regions": [1, 171, 162],
-    "working_hours": ['01:10-04:20', '12:50-21:00']
+    "working_hours": ['01:10-04:20']
 }
 
 
 def test_right_fields():
-    CourierModel(**TEST_DATA)
+    courier = CourierModel(**TEST_DATA)
+
+    expected_working_hours = TimeSpan(TEST_DATA['working_hours'][0])
+
+    assert courier.courier_id == TEST_DATA['courier_id']
+    assert courier.courier_type == TEST_DATA['courier_type']
+    assert courier.regions == TEST_DATA['regions']
+
+    assert courier.working_hours[0].start == expected_working_hours.start
+    assert courier.working_hours[0].stop == expected_working_hours.stop
 
 
 def test_extra_fields():
@@ -113,7 +121,8 @@ def test_empty_regions_list():
     test_data = TEST_DATA.copy()
     test_data['regions'] = []
 
-    CourierModel(**test_data)
+    courier = CourierModel(**test_data)
+    assert courier.regions == []
 
 
 def test_not_serializable_working_hours():
