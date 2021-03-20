@@ -5,7 +5,7 @@ import os
 from environs import Env
 from pydantic import ValidationError
 from sanic import Sanic, response
-from sanic.exceptions import ServerError
+from sanic.exceptions import ServerError, abort
 from sanic.log import error_logger
 from sanic.request import Request
 from uvloop.loop import Loop
@@ -83,13 +83,13 @@ async def update_courier(request: Request,
     if invalid_fields := is_json_patching_courier_valid(request.json):
         error_logger.error(f"Only {PATCHABLE_FIELDS} might be "
                            f"updated, but {invalid_fields} found")
-        return response.HTTPResponse(400)
+        abort(400)
 
     try:
         updated_courier = CourierModel(**courier.json(), **request.json)
     except ValidationError as e:
         error_logger.error(e.json(indent=4))
-        return response.HTTPResponse(status=400)
+        abort(400)
 
     await db_api.update_courier(updated_courier)
 
