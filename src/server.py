@@ -8,6 +8,7 @@ from sanic import Sanic, response
 from sanic.exceptions import ServerError, abort
 from sanic.log import error_logger
 from sanic.request import Request
+from sanic_openapi import swagger_blueprint
 from uvloop.loop import Loop
 
 import db_api
@@ -36,6 +37,7 @@ def is_json_patching_courier_valid(json_dict: dict) -> list[str]:
 
 
 app = Sanic(__name__, log_config=logging_config.LOGGING_CONFIG)
+app.blueprint(swagger_blueprint)
 env = Env()
 env.read_env()
 
