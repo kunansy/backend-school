@@ -83,7 +83,11 @@ async def add_couriers(request: Request) -> response.HTTPResponse:
 @app.patch('/couriers/<courier_id>')
 async def update_courier(request: Request,
                          courier_id: int) -> response.HTTPResponse:
-    courier = await db_api.get_courier(courier_id)
+    courier: CourierModel = await db_api.get_courier(courier_id)
+
+    if courier is None:
+        error_logger.error(f"Courier ({courier_id}) not found")
+        abort(400)
 
     if invalid_fields := is_json_patching_courier_valid(request.json):
         error_logger.error(f"Only {PATCHABLE_FIELDS} might be "
@@ -91,7 +95,8 @@ async def update_courier(request: Request,
         abort(400)
 
     try:
-        updated_courier = CourierModel(**courier.json(), **request.json)
+        courier_data = {**courier.dict(), **request.json}
+        updated_courier = CourierModel(**courier_data)
     except ValidationError as e:
         error_logger.error(e.json(indent=4))
         abort(400)
