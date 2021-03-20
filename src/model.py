@@ -1,6 +1,7 @@
 from datetime import time, datetime
 
-from pydantic import BaseModel, PositiveInt, conlist, validator, conint
+from pydantic import BaseModel, conlist, validator, conint, \
+    confloat
 
 from src import db_api
 
@@ -87,9 +88,12 @@ class CourierModel(BaseModel):
 
 
 class OrderModel(BaseModel):
-    order_id: PositiveInt()
-    weight: PositiveInt()
-    region: PositiveInt()
+    class Config:
+        extra = 'forbid'
+
+    order_id: conint(strict=True, gt=0)
+    weight: confloat(strict=True, ge=0.01, le=50)
+    region: conint(strict=True, gt=0)
     delivery_hours: list[str]
 
     @validator('weight')
