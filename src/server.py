@@ -137,7 +137,7 @@ async def update_courier(request: Request,
 @doc.tag("Get courier")
 @doc.summary("Get info about a courier")
 @doc.description("Also calculate additional info: rating, salary")
-@doc.response(200, CourierModel.schema() | {"rating": float, "earning": float})
+@doc.response(200, CourierModel.schema().update({"rating": float, "earning": float}))
 @doc.response(400, None, description="Courier not found")
 async def get_courier(request: Request,
                       courier_id: int) -> response.HTTPResponse:
