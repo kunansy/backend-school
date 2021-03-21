@@ -10,5 +10,5 @@
 - [ ] learn `asyncpg`
 - [ ] add mock tests
 - [ ] add benchmark
-- [ ] add swagger
+- [x] add swagger (`sanic-openapi`)
 - [x] add README
