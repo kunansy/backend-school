@@ -83,7 +83,7 @@ async def add_couriers(request: Request) -> response.HTTPResponse:
     return response.json(added_couriers, status=201)
 
 
-@app.patch('/couriers/<courier_id>')
+@app.patch('/couriers/<int:courier_id>')
 async def update_courier(request: Request,
                          courier_id: int) -> response.HTTPResponse:
     courier: CourierModel = await db_api.get_courier(courier_id)
@@ -109,7 +109,7 @@ async def update_courier(request: Request,
     return response.json(updated_courier.json())
 
 
-@app.get('/couriers/<courier_id>')
+@app.get('/couriers/<int:courier_id>')
 async def get_courier(request: Request, courier_id) -> response.HTTPResponse:
     pass
 
