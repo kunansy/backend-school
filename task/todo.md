@@ -11,4 +11,4 @@
 - [ ] add mock tests
 - [ ] add benchmark
 - [ ] add swagger
-- [ ] add README
+- [x] add README
