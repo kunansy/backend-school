@@ -1,5 +1,5 @@
 from datetime import time, datetime
-from typing import Any
+from typing import Any, Dict, List
 
 from pydantic import BaseModel, conlist, validator, conint, \
     confloat
@@ -69,7 +69,7 @@ class CourierModel(BaseModel):
     courier_id: conint(strict=True, gt=0)
     courier_type: str
     regions: conlist(item_type=conint(strict=True, gt=0))
-    working_hours: list[str]
+    working_hours: List[str]
 
     @validator('courier_type')
     def courier_type_validator(cls,
@@ -82,7 +82,7 @@ class CourierModel(BaseModel):
 
     @validator('working_hours')
     def working_hours_validator(cls,
-                                value: list[str]) -> list[TimeSpan]:
+                                value: List[str]) -> List[TimeSpan]:
         # TODO: ISO 8601, RFC 3339
         return [
             TimeSpan(working_hours)
@@ -90,12 +90,12 @@ class CourierModel(BaseModel):
         ]
 
     @classmethod
-    def schema(cls) -> dict[str, Any]:
+    def schema(cls) -> Dict[str, Any]:
         return {
             "courier_id": int,
             "courier_type": str,
-            "regions": list[int],
-            "working_hours": list[str]
+            "regions": List[int],
+            "working_hours": List[str]
         }
 
 
@@ -106,23 +106,23 @@ class OrderModel(BaseModel):
     order_id: conint(strict=True, gt=0)
     weight: confloat(ge=0.01, le=50)
     region: conint(strict=True, gt=0)
-    delivery_hours: list[str]
+    delivery_hours: List[str]
 
     @validator('delivery_hours')
     def delivery_hours_validator(cls,
-                                 value: list[str]) -> list[TimeSpan]:
+                                 value: List[str]) -> List[TimeSpan]:
         return [
             TimeSpan(working_hours)
             for working_hours in value
         ]
 
     @classmethod
-    def schema(cls) -> dict[str, Any]:
+    def schema(cls) -> Dict[str, Any]:
         return {
             "order_id": int,
             "weight": float,
             "region": int,
-            "delivery_hours": list[str]
+            "delivery_hours": List[str]
         }
 
 
@@ -142,7 +142,7 @@ class CompleteModel(BaseModel):
         return value
 
     @classmethod
-    def schema(cls) -> dict[str, Any]:
+    def schema(cls) -> Dict[str, Any]:
         return {
             "courier_id": int,
             "order_id": int,

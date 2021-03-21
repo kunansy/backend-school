@@ -1,4 +1,7 @@
-def get_courier_types() -> list[str]:
+from typing import List
+
+
+def get_courier_types() -> List[str]:
     return ['foot', 'car', 'bike']
 
 

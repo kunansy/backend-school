@@ -1,6 +1,7 @@
 import os
 import sys
 from logging import Filter, LogRecord
+from typing import List
 
 from environs import Env
 
@@ -22,7 +23,7 @@ except PermissionError as e:
 
 class DefaultFilter(Filter):
     def __init__(self,
-                 levels: list[int] = None) -> None:
+                 levels: List[int] = None) -> None:
         self._levels = levels or []
         super().__init__(self.__class__.__name__)
 

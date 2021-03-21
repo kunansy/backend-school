@@ -1,6 +1,7 @@
 #!/usr/bin/env python3
 import logging
 import os
+from typing import List
 
 from environs import Env
 from pydantic import ValidationError
@@ -21,7 +22,7 @@ PATCHABLE_FIELDS = [
 ]
 
 
-def is_json_patching_courier_valid(json_dict: dict) -> list[str]:
+def is_json_patching_courier_valid(json_dict: dict) -> List[str]:
     """
     Check whether the request to patch a courier valid,
     means there are only particular fields and nothing else.
@@ -103,7 +104,7 @@ async def add_couriers(request: Request) -> response.HTTPResponse:
 @doc.tag("Update a courier")
 @doc.summary("Update some fields of a courier")
 @doc.description(f"Update some of {PATCHABLE_FIELDS} of a courier")
-@doc.consumes(doc.JsonBody({"regions": list[int], "courier_type": str, "working_hours": str}),
+@doc.consumes(doc.JsonBody({"regions": List[int], "courier_type": str, "working_hours": str}),
               required=True, location="body", content_type="application/json")
 @doc.response(200, CourierModel.schema())
 @doc.response(400, None, description="Courier not found or wrong field given")
