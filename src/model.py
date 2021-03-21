@@ -13,7 +13,7 @@ VALIDATION_ERROR_TEMPLATE = {
 
 
 def validation_error(field_name: str,
-                     ids: list[int]) -> dict:
+                     ids: List[int]) -> dict:
     error_message = VALIDATION_ERROR_TEMPLATE.copy()
     error_message['validation_error'][field_name] = [
         {"id": id_}
