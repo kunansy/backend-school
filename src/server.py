@@ -87,7 +87,7 @@ async def add_couriers(request: Request) -> response.HTTPResponse:
         error_logger.error("Request rejected, it contains invalid "
                            f"couriers ({len(invalid_couriers_id)})")
         context = validation_error('couriers', invalid_couriers_id)
-        return response.json(context, status=400)
+        abort(400, context)
 
     await db_api.add_couriers(couriers)
 
@@ -167,7 +167,7 @@ async def add_orders(request: Request) -> response.HTTPResponse:
         error_logger.error("Request rejected, it contains invalid "
                            f"orders ({len(invalid_orders_id)})")
         context = validation_error('orders', invalid_orders_id)
-        return response.json(context, status=400)
+        abort(400, context)
 
     await db_api.add_orders(orders)
 
