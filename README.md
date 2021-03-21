@@ -40,9 +40,15 @@ pytest -svv tests/
 
 
 ## Benchmark
-Also, you can see service productivity (RPS):
-```shell
+Also, you can see service productivity (RPS) and its performance.
 
+1. Install benchmark soft
+```shell
+sudo apt install apache2-utils
+```
+2. Run benchmark
+```shell
+ab -n 5000 -c 500 http://127.0.0.1:8080/
 ```
 
 
