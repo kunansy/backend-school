@@ -235,6 +235,12 @@ async def complete(request: Request) -> response.HTTPResponse:
     return response.json(complete.dict(include={'courier_id'}))
 
 
+@app.get('/')
+@doc.exclude(True)
+async def home(request: Request) -> response.HTTPResponse:
+    return response.json({"ok": True})
+
+
 @app.exception(ServerError, Exception)
 async def error_handler(request: Request,
                         exception: Exception) -> response.HTTPResponse:
