@@ -50,10 +50,12 @@ class TimeSpan:
         return datetime.strptime(time_string, cls.TIME_FORMAT).time()
 
     def is_intercept(self, other) -> bool:
-        return self.start > other.start and self.stop < other.stop
+        return self | other
 
     def __or__(self, other) -> bool:
-        return self.is_intercept(other)
+        if self.start <= other.start:
+            return not(self.stop <= other.start)
+        return not(other.stop <= self.start)
 
     def __repr__(self) -> str:
         return f"{self.start.strftime(self.TIME_FORMAT)}-" \
