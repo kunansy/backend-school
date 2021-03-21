@@ -8,7 +8,7 @@ from sanic import Sanic, response
 from sanic.exceptions import ServerError, abort
 from sanic.log import error_logger
 from sanic.request import Request
-from sanic_openapi import swagger_blueprint
+from sanic_openapi import swagger_blueprint, doc
 from uvloop.loop import Loop
 
 import db_api
@@ -41,6 +41,14 @@ app.blueprint(swagger_blueprint)
 env = Env()
 env.read_env()
 
+app.config.update({
+    "API_HOST": f"{env('HOST')}:{env('PORT')}",
+    "API_TITLE": "Candy Delivery App",
+    "API_DESCRIPTION": "RESTful API that allows to work with delivering",
+    "API_CONTACT_EMAIL": "kolobov.kirill@list.ru",
+    "API_LICENSE_NAME": " "
+})
+
 
 @app.listener('after_server_start')
 async def create_db_connection(app: Sanic,
@@ -55,6 +63,14 @@ async def close_db_connection(app: Sanic,
 
 
 @app.post('/couriers')
+@doc.tag("Add couriers")
+@doc.summary("Add some couriers to the service")
+@doc.consumes([CourierModel.schema()], location="body",
+              required=True, content_type="application/json")
+@doc.response(201, {"couriers": [{"id": int}]},
+              description="Couriers added")
+@doc.response(400, {"validation_error": {"couriers": [{"id": int}]}},
+              description="Some of couriers are invalid")
 async def add_couriers(request: Request) -> response.HTTPResponse:
     couriers, invalid_couriers_id = [], []
     for courier in request.json['data']:
@@ -83,7 +99,14 @@ async def add_couriers(request: Request) -> response.HTTPResponse:
     return response.json(added_couriers, status=201)
 
 
-@app.patch('/couriers/<int:courier_id>')
+@app.patch('/couriers/<courier_id:int>')
+@doc.tag("Update a courier")
+@doc.summary("Update some fields of a courier")
+@doc.description(f"Update some of {PATCHABLE_FIELDS} of a courier")
+@doc.consumes(doc.JsonBody({"regions": list[int], "courier_type": str, "working_hours": str}),
+              required=True, location="body", content_type="application/json")
+@doc.response(200, CourierModel.schema())
+@doc.response(400, None, description="Courier not found or wrong field given")
 async def update_courier(request: Request,
                          courier_id: int) -> response.HTTPResponse:
     courier: CourierModel = await db_api.get_courier(courier_id)
@@ -109,12 +132,25 @@ async def update_courier(request: Request,
     return response.json(updated_courier.json())
 
 
-@app.get('/couriers/<int:courier_id>')
-async def get_courier(request: Request, courier_id) -> response.HTTPResponse:
+@app.get('/couriers/<courier_id:int>')
+@doc.tag("Get courier")
+@doc.summary("Get info about a courier")
+@doc.description("Also calculate additional info: rating, salary")
+@doc.response(200, CourierModel.schema() | {"rating": float, "earning": float})
+@doc.response(400, None, description="Courier not found")
+async def get_courier(request: Request,
+                      courier_id: int) -> response.HTTPResponse:
     pass
 
 
 @app.post('/orders')
+@doc.tag("Add orders")
+@doc.summary("Add some orders")
+@doc.consumes([OrderModel.schema()], location="body", required=True)
+@doc.response(201, {"orders": [{"id": int}]},
+              description="Orders added")
+@doc.response(400, {"validation_error": {"orders": [{"id": int}]}},
+              description="Some of orders are invalid")
 async def add_orders(request: Request) -> response.HTTPResponse:
     orders, invalid_orders_id = [], []
     for order in request.json['data']:
@@ -144,6 +180,12 @@ async def add_orders(request: Request) -> response.HTTPResponse:
 
 
 @app.post('/orders/assign')
+@doc.tag("Assign orders")
+@doc.summary("Assign all valid orders to the courier by his id")
+@doc.consumes(doc.JsonBody({"courier_id": int}), location="body",
+              required=True, content_type="application/json")
+@doc.response(400, None, description="The courier not found")
+@doc.response(200, {"orders": [{"id": int}], "assign_time": str})
 async def assign(request: Request) -> response.HTTPResponse:
     courier_id = request.json.get('courier_id', -1)
 
@@ -156,6 +198,12 @@ async def assign(request: Request) -> response.HTTPResponse:
 
 
 @app.post('/orders/complete')
+@doc.tag("Complete order")
+@doc.summary("Complete the order")
+@doc.consumes(doc.JsonBody(CompleteModel.schema()), location="body",
+              required=True, content_type="application/json")
+@doc.response(400, None, description="The request is invalid")
+@doc.response(200, {"order_id": int}, description="Order completed")
 async def complete(request: Request) -> response.HTTPResponse:
     try:
         complete = CompleteModel(**request.json)
