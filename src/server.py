@@ -12,9 +12,9 @@ from sanic.request import Request
 from sanic_openapi import swagger_blueprint, doc
 from uvloop.loop import Loop
 
-import db_api
-import logging_config
-from model import CourierModel, validation_error, OrderModel, CompleteModel
+import src.db_api as db_api
+import src.logging_config as logging_config
+from src.model import CourierModel, validation_error, OrderModel, CompleteModel
 
 
 PATCHABLE_FIELDS = [
