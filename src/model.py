@@ -1,4 +1,5 @@
 from datetime import time, datetime
+from typing import Any
 
 from pydantic import BaseModel, conlist, validator, conint, \
     confloat
@@ -86,6 +87,15 @@ class CourierModel(BaseModel):
             for working_hours in value
         ]
 
+    @classmethod
+    def schema(cls) -> dict[str, Any]:
+        return {
+            "courier_id": int,
+            "courier_type": str,
+            "regions": list[int],
+            "working_hours": list[str]
+        }
+
 
 class OrderModel(BaseModel):
     class Config:
@@ -104,6 +114,15 @@ class OrderModel(BaseModel):
             for working_hours in value
         ]
 
+    @classmethod
+    def schema(cls) -> dict[str, Any]:
+        return {
+            "order_id": int,
+            "weight": float,
+            "region": int,
+            "delivery_hours": list[str]
+        }
+
 
 class CompleteModel(BaseModel):
     """ The model is expected to represent `complete` requests """
@@ -119,3 +138,11 @@ class CompleteModel(BaseModel):
                                 value: str):
         # TODO: here there's ISO<bla-bla-bla> standard
         return value
+
+    @classmethod
+    def schema(cls) -> dict[str, Any]:
+        return {
+            "courier_id": int,
+            "order_id": int,
+            "complete_time": str
+        }
