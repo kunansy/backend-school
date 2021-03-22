@@ -279,7 +279,6 @@ if __name__ == "__main__":
         host=env('HOST'),
         port=env.int('PORT'),
         debug=debug,
-        access_log=env.bool('ACCESS_LOG'),
         workers=workers,
         auto_reload=True
     )
