@@ -116,7 +116,7 @@ async def add_couriers(request: Request) -> response.HTTPResponse:
 @doc.description(f"Update some of {PATCHABLE_FIELDS} of a courier")
 @doc.consumes(doc.JsonBody({"regions": List[int], "courier_type": str, "working_hours": str}),
               required=True, location="body", content_type="application/json")
-@doc.response(200, CourierModel.schema())
+@doc.response(200, CourierModel.schema(), description="Courier updated")
 @doc.response(400, None, description="Courier not found or wrong field given")
 async def update_courier(request: Request,
                          courier_id: int) -> response.HTTPResponse:
@@ -147,7 +147,8 @@ async def update_courier(request: Request,
 @doc.tag("Get courier")
 @doc.summary("Get info about a courier")
 @doc.description("Also calculate additional info: rating, salary")
-@doc.response(200, CourierModel.schema().update({"rating": float, "earning": float}))
+@doc.response(200, CourierModel.schema().update({"rating": float, "earning": float}),
+              description="Courier info calculated and sent")
 @doc.response(400, None, description="Courier not found")
 async def get_courier(request: Request,
                       courier_id: int) -> response.HTTPResponse:
@@ -196,7 +197,8 @@ async def add_orders(request: Request) -> response.HTTPResponse:
 @doc.consumes(doc.JsonBody({"courier_id": int}), location="body",
               required=True, content_type="application/json")
 @doc.response(400, None, description="The courier not found")
-@doc.response(200, {"orders": [{"id": int}], "assign_time": str})
+@doc.response(200, {"orders": [{"id": int}], "assign_time": str},
+              description="Orders assigned to the courier")
 async def assign(request: Request) -> response.HTTPResponse:
     courier_id = request.json.get('courier_id', -1)
 
