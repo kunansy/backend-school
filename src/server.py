@@ -25,6 +25,8 @@ import src.logging_config as logging_config
 from src.model import CourierModel, validation_error, OrderModel, CompleteModel
 
 
+os.environ['PYTHONWARNINGS'] = 'ignore'
+
 PATCHABLE_FIELDS = [
     'courier_type', 'regions', 'working_hours'
 ]
