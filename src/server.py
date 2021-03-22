@@ -2,6 +2,7 @@
 import asyncio
 import logging
 import os
+import sys
 from typing import List
 
 from environs import Env
@@ -12,6 +13,12 @@ from sanic.log import error_logger
 from sanic.request import Request
 from sanic_openapi import swagger_blueprint, doc
 from uvloop.loop import Loop
+
+sys.path += [
+    os.path.abspath('..'),
+    os.path.abspath('.')
+]
+
 
 import src.db_api as db_api
 import src.logging_config as logging_config
