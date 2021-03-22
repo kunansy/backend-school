@@ -51,5 +51,5 @@ ab -n 5000 -c 500 http://127.0.0.1:8080/
 
 
 ## Requires
-* Python3.9
+* Python>=3.8
 * docker
