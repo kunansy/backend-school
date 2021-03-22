@@ -108,7 +108,7 @@ LOGGING_CONFIG = {
             "handlers": ["accessStream", "accessFile"]
         },
         "sanic.error": {
-            "level": "ERROR",
+            "level": "WARNING",
             "handlers": ["errorStream", "errorFile"]
         }
     }
