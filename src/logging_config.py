@@ -12,7 +12,6 @@ env.read_env()
 BASE_MESSAGE_FORMAT = "[%(asctime)s] [%(name)s:%(levelname)s] [%(module)s:%(funcName)s():%(process)d]"
 DATE_FORMAT = "%d-%m-%Y %H:%M:%S"
 
-FILE_LOGGING = 'INFO' if env.bool('FILE_LOGGING') else 'ERROR'
 LOG_FOLDER = env.path('LOG_FOLDER')
 
 try:
@@ -68,7 +67,7 @@ LOGGING_CONFIG = {
             "formatter": "simple",
             "filters": ["internalFilter"],
             "filename": LOG_FOLDER / "sweets_shop.log",
-            "level": FILE_LOGGING
+            "level": "INFO"
         },
         "errorStream": {
             "class": "logging.StreamHandler",
@@ -95,7 +94,7 @@ LOGGING_CONFIG = {
             "formatter": "access",
             "filters": ["internalFilter"],
             "filename": LOG_FOLDER / "sweets_shop_access.log",
-            "level": FILE_LOGGING
+            "level": "INFO"
         }
     },
     "loggers": {
