@@ -4,7 +4,7 @@ from typing import Any, Dict, List
 from pydantic import BaseModel, conlist, validator, conint, \
     confloat
 
-import db_api
+import src.db_api as db_api
 
 
 VALIDATION_ERROR_TEMPLATE = {
