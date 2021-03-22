@@ -21,7 +21,7 @@ except PermissionError as e:
     pass
 
 
-class DefaultFilter(Filter):
+class LevelFilter(Filter):
     def __init__(self,
                  levels: List[int] = None) -> None:
         self._levels = levels or []
@@ -37,11 +37,11 @@ LOGGING_CONFIG = {
     "disable_existing_loggers": False,
     "filters": {
         "internalFilter": {
-            "()": DefaultFilter,
+            "()": LevelFilter,
             "levels": [0, 10, 20]
         },
         "errorFilter": {
-            "()": DefaultFilter,
+            "()": LevelFilter,
             "levels": [30, 40, 50]
         }
     },
