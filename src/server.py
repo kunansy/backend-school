@@ -1,4 +1,5 @@
 #!/usr/bin/env python3
+import asyncio
 import logging
 import os
 from typing import List
@@ -238,6 +239,7 @@ async def complete(request: Request) -> response.HTTPResponse:
 @app.get('/')
 @doc.exclude(True)
 async def home(request: Request) -> response.HTTPResponse:
+    await asyncio.sleep(1)
     return response.json({"ok": True})
 
 
