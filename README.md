@@ -29,7 +29,7 @@ You can see docs, examples and try to use the service on `127.0.0.1:8080/swagger
 
 
 ## Testing
-Run tests:
+Go to `tests/` folder and run tests:
 ```shell
 pytest -svv tests/
 ```
