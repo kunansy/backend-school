@@ -13,6 +13,7 @@ BASE_MESSAGE_FORMAT = "[%(asctime)s] [%(name)s:%(levelname)s] [%(module)s:%(func
 DATE_FORMAT = "%d-%m-%Y %H:%M:%S"
 
 LOG_FOLDER = env.path('LOG_FOLDER')
+DEBUG = env.bool('DEBUG')
 
 try:
     os.makedirs(LOG_FOLDER, exist_ok=True)
@@ -31,6 +32,19 @@ class LevelFilter(Filter):
         return record.levelno in self._levels
 
 
+class DebugFilter(Filter):
+    """ The filter is designed to skip logging to file
+    if DEBUG is True and skip logging to stream otherwise. """
+    def __init__(self,
+                 debug: bool) -> None:
+        self._debug = debug
+        super().__init__(self.__class__.__name__)
+
+    def filter(self,
+               record: LogRecord) -> bool:
+        return self._debug
+
+
 LOGGING_CONFIG = {
     "version": 1,
     "disable_existing_loggers": False,
@@ -42,6 +56,14 @@ LOGGING_CONFIG = {
         "errorFilter": {
             "()": LevelFilter,
             "levels": [30, 40, 50]
+        },
+        "debugFileFilter": {
+            "()": DebugFilter,
+            "debug": not DEBUG
+        },
+        "debugStreamFilter": {
+            "()": DebugFilter,
+            "debug": DEBUG
         }
     },
     "formatters": {
@@ -58,41 +80,41 @@ LOGGING_CONFIG = {
         "internalStream": {
             "class": "logging.StreamHandler",
             "formatter": "simple",
-            "filters": ["internalFilter"],
+            "filters": ["internalFilter", "debugStreamFilter"],
             "stream": sys.stderr,
             "level": "DEBUG"
         },
         "internalFile": {
             "class": "logging.FileHandler",
             "formatter": "simple",
-            "filters": ["internalFilter"],
+            "filters": ["internalFilter", "debugFileFilter"],
             "filename": LOG_FOLDER / "sweets_shop.log",
             "level": "INFO"
         },
         "errorStream": {
             "class": "logging.StreamHandler",
             "formatter": "simple",
-            "filters": ["errorFilter"],
+            "filters": ["errorFilter", "debugStreamFilter"],
             "stream": sys.stderr,
             "level": "WARNING"
         },
         "errorFile": {
             "class": "logging.FileHandler",
             "formatter": "simple",
-            "filters": ["errorFilter"],
+            "filters": ["errorFilter", "debugFileFilter"],
             "filename": LOG_FOLDER / "sweets_shop_error.log",
             "level": "WARNING"
         },
         "accessStream": {
             "class": "logging.StreamHandler",
             "formatter": "access",
-            "filters": ["internalFilter"],
+            "filters": ["internalFilter", "debugStreamFilter"],
             "level": "DEBUG"
         },
         "accessFile": {
             "class": "logging.FileHandler",
             "formatter": "access",
-            "filters": ["internalFilter"],
+            "filters": ["internalFilter", "debugFileFilter"],
             "filename": LOG_FOLDER / "sweets_shop_access.log",
             "level": "INFO"
         }
