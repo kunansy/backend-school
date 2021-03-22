@@ -14,8 +14,6 @@
 HOST='0.0.0.0'
 PORT=8080
 DEBUG=False
-ACCESS_LOG=True
-FILE_LOGGING=True
 LOG_FOLDER=./logs/
 ```
 
