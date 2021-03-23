@@ -12,6 +12,49 @@ env = Env()
 env.read_env()
 
 
+class TimeSpan:
+    TIME_FORMAT = "%H:%M"
+
+    def __init__(self,
+                 value: str) -> None:
+        start, stop = value.split('-')
+
+        self.__start = TimeSpan.parse_time(start)
+        self.__stop = TimeSpan.parse_time(stop)
+
+        if start >= stop:
+            raise ValueError("Start must me be less than stop")
+
+    @property
+    def start(self) -> time:
+        return self.__start
+
+    @property
+    def stop(self) -> time:
+        return self.__stop
+
+    @classmethod
+    def parse_time(cls,
+                   time_string: str) -> time:
+        return datetime.strptime(time_string, cls.TIME_FORMAT).time()
+
+    def is_intercept(self, other) -> bool:
+        return self | other
+
+    def __or__(self, other) -> bool:
+        if self.start <= other.start:
+            return not(self.stop <= other.start)
+        return not(other.stop <= self.start)
+
+    def __repr__(self) -> str:
+        return f"{self.start.strftime(self.TIME_FORMAT)}-" \
+               f"{self.stop.strftime(self.TIME_FORMAT)}"
+
+    def __eq__(self, other) -> bool:
+        return self.start == other.start and \
+               self.stop == other.stop
+
+
 @dataclass
 class _Courier:
     courier_id: int
