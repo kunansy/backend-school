@@ -18,6 +18,7 @@ LOG_FOLDER=./logs/
 DB_DSN='postgres://postgres:12345@127.0.0.1:5432/candy_shop'
 ```
 
+> To tun server or tests you mast have database working.
 
 ## Running
 From root folder of the API:
