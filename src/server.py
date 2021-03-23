@@ -278,9 +278,7 @@ async def error_handler(request: Request,
 if __name__ == "__main__":
     debug = env.bool('DEBUG', False)
 
-    # use all server power but don't destroy developer's
-    # computer, means use just one worker on his machine
-    workers = 2 * os.cpu_count() * (not debug) + 1
+    workers = 1 if debug else os.cpu_count()
     logger_level = 'DEBUG' if debug else 'INFO'
 
     logging.getLogger('sanic.root').setLevel(logger_level)
