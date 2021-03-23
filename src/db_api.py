@@ -302,14 +302,23 @@ class Database:
 
         return updated_courier
 
-            try:
-                orders = await conn.fetch(query)
-            except Exception:
-                error_logger.exception()
-                raise
-            logger.debug("Request successfully completed")
+    async def get_orders(self,
+                         condition: str) -> List[_Order]:
+        query = f"""
+        SELECT 
+            *
+        FROM
+            orders
+        WHERE
+            {condition}
+        ;
+        """
+        orders = await self.get(query)
 
-            return orders
+        return [
+            _Order(order)
+            for order in orders
+        ]
 
     async def add_orders(self,
                          orders: list) -> None:
