@@ -1,16 +1,16 @@
 __all__ = 'COMMANDS',
 
 CREATE_COURIER_TABLE = """
-CREATE TABLE courier(
+CREATE TABLE courier (
     courier_id SERIAL PRIMARY KEY,
-    courier_type REFERENCES courier_type (id),
+    courier_type INTEGER REFERENCES courier_type (id) NOT NULL,
     regions INTEGER[],
     working_hours VARCHAR[] 
 );
 """
 
 CREATE_COURIER_TYPE_TABLE = """
-CREATE TABLE courier_type(
+CREATE TABLE courier_type (
     id SERIAL PRIMARY KEY,
     type VARCHAR(5) NOT NULL,
     c INTEGER NOT NULL,
@@ -19,7 +19,7 @@ CREATE TABLE courier_type(
 """
 
 CREATE_ORDER_TABLE = """
-CREATE TABLE order(
+CREATE TABLE orders (
     order_id SERIAL PRIMARY KEY,
     weight REAL NOT NULL,
     region INTEGER NOT NULL,
@@ -28,11 +28,11 @@ CREATE TABLE order(
 """
 
 CREATE_STATUS_TABLE = """
-CREATE TABLE status(
+CREATE TABLE status (
     id SERIAL PRIMARY KEY,
-    courier_id REFERENCES courier (courier_id),
-    order_id REFERENCES order (order_id),
-    assigned_time TIME DEFAULT NOW()::TIME,
+    courier_id INTEGER REFERENCES courier (courier_id) NOT NULL,
+    order_id INTEGER REFERENCES order (order_id) NOT NULL,
+    assigned_time TIME,
     completed_time DEFAULT NULL
 );
 """
