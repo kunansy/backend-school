@@ -59,6 +59,10 @@ class TimeSpan:
         return f"{self.start.strftime(self.TIME_FORMAT)}-" \
                f"{self.stop.strftime(self.TIME_FORMAT)}"
 
+    def __eq__(self, other) -> bool:
+        return self.start == other.start and \
+               self.stop == other.stop
+
 
 class CourierModel(BaseModel):
     class Config:
@@ -95,6 +99,18 @@ class CourierModel(BaseModel):
             "regions": List[int],
             "working_hours": List[str]
         }
+
+    def __eq__(self, other) -> bool:
+        return (self.courier_id == other.courier_id and
+                self.courier_type == other.courier_type and
+                self.regions == other.regions and
+                self.working_hours == other.working_hours)
+        # TODO: wtf: this code doesn't work, I mean it
+        #  returns false when items are equal
+        # return all(
+        #     getattr(other, name) == value
+        #     for name, value in self.__fields__.items()
+        # )
 
 
 class OrderModel(BaseModel):
