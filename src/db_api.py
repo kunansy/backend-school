@@ -14,9 +14,9 @@ env.read_env()
 def async_cache(func: Callable) -> Callable:
     results = []
 
-    async def wrapped() -> List[str]:
+    async def wrapped(*args, **kwargs) -> List[str]:
         nonlocal results
-        results = results or await func()
+        results = results or await func(*args, **kwargs)
 
         return results
 
