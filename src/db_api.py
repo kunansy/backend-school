@@ -217,27 +217,25 @@ class Database:
 
     async def add_orders(self,
                          orders: list) -> None:
-        async with self._pool.acquire() as conn:
-            async with conn.transaction():
-                query = COMMANDS['insert']['order']
-                orders = ', '.join(
-                    f"({order.order_id}, "
-                    f"{order.weight}, "
-                    f"{order.region}, "
-                    f"{order.delivery_hours}"
-                    ")"
-                    for order in orders
-                )
-                query = f"{query} {orders};"
-                logger.debug(f"Requested to the database: \n {query}")
+        orders = ', '.join(
+            f"({order.order_id}, "
+            f"{order.weight}, "
+            f"{order.region}, "
+            f"{order.delivery_hours}"
+            f")"
+            for order in orders
+        )
 
-                try:
-                    await conn.execute(query)
-                except Exception:
-                    error_logger.exception()
-                    raise
-
-            logger.debug(f"Orders ({len(orders)}) added to database")
+        query = f"""
+        INSERT INTO
+            orders
+        VALUES
+            {orders}
+        ;
+        """
+        logger.debug(f"Requested to the database: \n {query}")
+        await self.execute_t(query)
+        logger.debug(f"Orders ({len(orders)}) added to database")
 
     async def assign_orders(self,
                             courier_id: int) -> list:
