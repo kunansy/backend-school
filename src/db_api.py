@@ -300,6 +300,14 @@ class Database:
         """
         return await self.get_orders(last_orders_condition)
 
+    async def _get_free_orders(self) -> List[_Order]:
+        pass
+
+    async def cancel_orders(self,
+                            courier_id: int,
+                            orders_to_cancel: List[_Order]) -> None:
+        pass
+
     async def update_courier(self,
                              **data):
         courier_id = data.pop('id')
