@@ -31,7 +31,7 @@ CREATE_STATUS_TABLE = """
 CREATE TABLE status (
     id SERIAL PRIMARY KEY,
     courier_id INTEGER REFERENCES courier (courier_id) NOT NULL,
-    order_id INTEGER REFERENCES order (order_id) NOT NULL,
+    order_id INTEGER REFERENCES orders (order_id) NOT NULL,
     assigned_time TIME,
     completed_time DEFAULT NULL
 );
@@ -47,12 +47,12 @@ COMMANDS = {
     "get": {
         "courier": "SELECT {fields} FROM courier",
         "courier_type": "SELECT {fields} FROM courier_type",
-        "order": "SELECT {fields} FROM order",
+        "order": "SELECT {fields} FROM orders",
         "status": "SELECT {fields} FROM status"
     },
     "insert": {
         "courier": "INSERT INTO courier VALUES {values}",
-        "order": "INSERT INTO order VALUES {values}",
+        "order": "INSERT INTO orders VALUES {values}",
         "order_type": "INSERT INTO courier_type VALUES {values}",
     },
     "update": {
