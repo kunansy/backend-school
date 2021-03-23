@@ -1,4 +1,4 @@
-__all__ = 'COMMANDS',
+__all__ = 'COMMANDS', 'TABLES'
 
 CREATE_COURIER_TABLE = """
 CREATE TABLE courier (
@@ -36,6 +36,13 @@ CREATE TABLE status (
     completed_time DEFAULT NULL
 );
 """
+
+TABLES = {
+    "courier",
+    "courier_type",
+    "orders",
+    "status"
+}
 
 COMMANDS = {
     "create": {
