@@ -64,8 +64,26 @@ class Database:
 
     async def add_couriers(self,
                            couriers: list) -> None:
-        # logger.info(f"{len(couriers)} added to database")
-        pass
+        async with self._pool.acquire() as conn:
+            command = COMMANDS['insert']['courier']
+            couriers = ', '.join(
+                f"({courier.courier_id}, "
+                f"(SELECT t.id FROM courier_type t WHERE t.type = {courier.courier_type}),"
+                f"{courier.regions},"
+                f"{courier.working_hours}"
+                ")"
+                for courier in couriers
+            )
+            command = f"{command} {couriers};"
+            logger.debug(f"Requested to the database: \n {command}")
+
+            try:
+                await conn.execute(command)
+            except Exception:
+                error_logger.exception()
+                raise
+
+            logger.debug(f"Couriers ({len(couriers)}) added to database")
 
     async def get_courier(self,
                           value,
