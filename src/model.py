@@ -21,6 +21,18 @@ def validation_error(field_name: str,
     return error_message
 
 
+def validate_time(time_: str) -> str:
+    start, stop = time_.split('-')
+
+    start = datetime.strptime(start, "%H:%M").time()
+    stop = datetime.strptime(stop, "%H:%M").time()
+
+    if start >= stop:
+        raise ValueError
+
+    return time_
+
+
 class TimeSpan:
     TIME_FORMAT = "%H:%M"
 
@@ -84,10 +96,10 @@ class CourierModel(BaseModel):
 
     @validator('working_hours')
     def working_hours_validator(cls,
-                                value: List[str]) -> List[TimeSpan]:
+                                value: List[str]) -> List[str]:
         # TODO: ISO 8601, RFC 3339
         return [
-            TimeSpan(working_hours)
+            validate_time(working_hours)
             for working_hours in value
         ]
 
@@ -124,9 +136,9 @@ class OrderModel(BaseModel):
 
     @validator('delivery_hours')
     def delivery_hours_validator(cls,
-                                 value: List[str]) -> List[TimeSpan]:
+                                 value: List[str]) -> List[str]:
         return [
-            TimeSpan(working_hours)
+            validate_time(working_hours)
             for working_hours in value
         ]
 
