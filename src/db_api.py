@@ -61,18 +61,24 @@ class _Courier:
     courier_id: int
     courier_type: str
     regions: List[int]
-    working_hours: List[str]
+    working_hours: List[TimeSpan]
     coeff: int
     payload: int
 
     def __init__(self,
                  courier: asyncpg.Record) -> None:
-        self.courier_id = courier.get('courier_id')
+        self.courier_id = int(courier.get('courier_id'))
         self.courier_type = courier.get('courier_type')
-        self.regions = courier.get('regions')
-        self.working_hours = courier.get('working_hours')
-        self.coeff = courier.get('c')
-        self.payload = courier.get('payload')
+        self.regions = [
+            int(region)
+            for region in courier.get('regions')
+        ]
+        self.working_hours = [
+            TimeSpan(time_)
+            for time_ in courier.get('working_hours')
+        ]
+        self.coeff = int(courier.get('c'))
+        self.payload = int(courier.get('payload'))
 
 
 @dataclass
