@@ -44,7 +44,23 @@ class Database:
 
     @async_cache
     async def get_courier_types(self) -> List[str]:
-        return ['foot', 'car', 'bike']
+        async with self._pool.acquire() as conn:
+            command = COMMANDS['get']['courier_type'].format(
+                fields='type'
+            )
+
+            logger.info(f"Requested to the database\n{command}")
+            try:
+                records = await conn.fetch(command)
+            except Exception as e:
+                error_logger.exception(e)
+                raise
+            logger.debug("Request successfully completed")
+
+            return [
+                record.get('type')
+                for record in records
+            ]
 
     async def add_couriers(self,
                            couriers: list) -> None:
