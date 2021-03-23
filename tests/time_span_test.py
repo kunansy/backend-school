@@ -3,7 +3,7 @@ from datetime import time
 
 import pytest
 
-from src.model import TimeSpan
+from src.db_api import TimeSpan
 
 
 @pytest.mark.parametrize(
@@ -37,17 +37,17 @@ def test_intercepting(t1, t2, result):
 
 
 @pytest.mark.parametrize(
-    ('t1', 't2', 'result', 'time_'), (
-        ('21:55-22:15', '21:55-23:45', True, time(21, 55)),
-        ('10:31-20:50', '17:55-20:50', True, time(20, 50))
+    ('t1', 't2', 'result', 'time_', 'attr'), (
+        ('21:55-22:15', '21:55-23:45', True, time(21, 55), 'start'),
+        ('10:31-20:50', '17:55-20:50', True, time(20, 50), 'stop')
     )
 )
-def test_spans_with_the_same_start_or_stop(t1, t2, result, time_):
+def test_spans_with_the_same_start_or_stop(t1, t2, result, time_, attr):
     t1, t2 = TimeSpan(t1), TimeSpan(t2)
 
     assert t1 | t2 is result
     assert t2 | t1 is result
-    assert t1.start == t2.start == time_
+    assert getattr(t1, attr) == getattr(t2, attr) == time_
 
 
 def test_repr():

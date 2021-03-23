@@ -2,7 +2,8 @@
 import pytest
 from pydantic import ValidationError
 
-from src.model import CourierModel, TimeSpan
+from src.model import CourierModel
+
 
 TEST_DATA = {
     "courier_id": 12,
@@ -15,14 +16,10 @@ TEST_DATA = {
 def test_right_fields():
     courier = CourierModel(**TEST_DATA)
 
-    expected_working_hours = TimeSpan(TEST_DATA['working_hours'][0])
-
     assert courier.courier_id == TEST_DATA['courier_id']
     assert courier.courier_type == TEST_DATA['courier_type']
     assert courier.regions == TEST_DATA['regions']
-
-    assert courier.working_hours[0].start == expected_working_hours.start
-    assert courier.working_hours[0].stop == expected_working_hours.stop
+    assert courier.working_hours == TEST_DATA['working_hours']
 
 
 def test_extra_fields():

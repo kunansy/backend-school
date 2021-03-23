@@ -2,7 +2,7 @@
 import pytest
 from pydantic import ValidationError
 
-from src.model import OrderModel, TimeSpan
+from src.model import OrderModel
 
 
 TEST_DATA = {
@@ -16,15 +16,10 @@ TEST_DATA = {
 def test_right_fields():
     order = OrderModel(**TEST_DATA)
 
-    expected_delivery_hours = TimeSpan(TEST_DATA['delivery_hours'][0])
-
     assert order.order_id == TEST_DATA['order_id']
     assert order.weight == TEST_DATA['weight']
     assert order.region == TEST_DATA['region']
-
-    # TODO: wtf, just '==' doesn't work
-    assert order.delivery_hours[0].start == expected_delivery_hours.start
-    assert order.delivery_hours[0].stop == expected_delivery_hours.stop
+    assert order.delivery_hours == TEST_DATA['delivery_hours']
 
 
 def test_extra_fields():
@@ -101,14 +96,7 @@ def test_several_delivery_hours():
 
     order = OrderModel(**test_data)
 
-    assert order.delivery_hours[0].start == TimeSpan(delivery_hours[0]).start
-    assert order.delivery_hours[0].stop == TimeSpan(delivery_hours[0]).stop
-
-    assert order.delivery_hours[1].start == TimeSpan(delivery_hours[1]).start
-    assert order.delivery_hours[1].stop == TimeSpan(delivery_hours[1]).stop
-
-    assert order.delivery_hours[2].start == TimeSpan(delivery_hours[2]).start
-    assert order.delivery_hours[2].stop == TimeSpan(delivery_hours[2]).stop
+    assert order.delivery_hours == delivery_hours
 
 
 if __name__ == "__main__":
