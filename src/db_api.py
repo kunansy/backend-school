@@ -120,9 +120,25 @@ class Database:
         pass
 
     async def get_order(self,
-                        value,
+                        value=None,
                         field: str = 'order_id'):
-        pass
+        async with self._pool.acquire() as conn:
+            query = COMMANDS['get']['order'].format(
+                fields='*'
+            )
+            if value:
+                query = f"{query} WHERE {field} = {value}"
+
+            logger.debug(f"Requested to the database: \n{query}")
+
+            try:
+                orders = await conn.fetch(query)
+            except Exception:
+                error_logger.exception()
+                raise
+            logger.debug("Request successfully completed")
+
+            return orders
 
     async def add_orders(self,
                          order: list) -> None:
