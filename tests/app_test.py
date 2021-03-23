@@ -11,7 +11,44 @@ from src.server import app
 logging.disable(logging.CRITICAL)
 
 
-@mock.patch("src.server.db_api.add_couriers")
+@pytest.fixture(scope="session")
+def remove_db():
+    server.create_db_connection = print
+    server.close_db_connection = print
+    del app.db
+
+
+TEST_COURIERS = {
+    "data": [
+        {
+            "courier_id": 1,
+            "courier_type": "foot",
+            "regions": [1, 2, 1487],
+            "working_hours": ["09:11-12:56", "20:10-23:42"]
+        },
+        {
+            "courier_id": 2,
+            "courier_type": "foot",
+            "regions": [1487],
+            "working_hours": ["23:11-23:12"]
+        },
+        {
+            "courier_id": 3,
+            "courier_type": "bike",
+            "regions": [145, 197, 17],
+            "working_hours": ["09:11-12:56"]
+        },
+        {
+            "courier_id": 4,
+            "courier_type": "car",
+            "regions": [],
+            "working_hours": []
+        },
+    ]
+}
+
+
+@mock.patch("src.server.app.db.add_couriers")
 def test_add_couriers_with_valid_couriers(db_mock: mock.AsyncMock):
     pass
 
