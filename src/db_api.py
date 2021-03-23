@@ -96,6 +96,29 @@ class Database:
             async with conn.transaction():
                 return await self._get(query, conn)
 
+    async def _execute(self,
+                       query: str,
+                       conn: asyncpg.Connection):
+        try:
+            result = await conn.execute(query)
+        except Exception:
+            error_logger.exception()
+            raise
+        return result
+
+    async def execute(self,
+                      query: str):
+        """ Execute the query without transaction """
+        async with self._pool.acquire() as conn:
+            return await self._execute(query, conn)
+
+    async def execute_t(self,
+                        query: str):
+        """ Execute the query with transaction """
+        async with self._pool.acquire() as conn:
+            async with conn.transaction():
+                return await self._execute(query, conn)
+
     @async_cache
     async def get_courier_types(self) -> List[str]:
         async with self._pool.acquire() as conn:
