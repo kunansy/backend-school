@@ -1,11 +1,23 @@
-from typing import List
+from typing import List, Callable
 
+
+def async_cache(func: Callable) -> Callable:
+    results = []
+
+    async def wrapped() -> List[str]:
+        nonlocal results
+        results = results or await func()
+
+        return results
+
+    return wrapped
 
 
 class Database:
     def __init__(self) -> None:
         pass
 
+    @async_cache
     async def get_courier_types(self) -> List[str]:
         return ['foot', 'car', 'bike']
 
