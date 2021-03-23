@@ -49,6 +49,8 @@ def is_json_patching_courier_valid(json_dict: dict) -> List[str]:
 
 app = Sanic(__name__, log_config=logging_config.LOGGING_CONFIG)
 app.blueprint(swagger_blueprint)
+app.db = db_api.Database()
+
 env = Env()
 env.read_env()
 
@@ -64,13 +66,13 @@ app.config.update({
 @app.listener('after_server_start')
 async def create_db_connection(app: Sanic,
                                loop: Loop) -> None:
-    pass
+    await app.db.connect()
 
 
 @app.listener('after_server_stop')
 async def close_db_connection(app: Sanic,
                               loop: Loop) -> None:
-    pass
+    await app.db.close()
 
 
 @app.post('/couriers')
