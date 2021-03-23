@@ -1,3 +1,4 @@
+from dataclasses import dataclass
 from typing import List, Callable, Iterable, Dict
 
 import asyncpg
@@ -9,6 +10,33 @@ from src.db_commands import COMMANDS, TABLES
 
 env = Env()
 env.read_env()
+
+
+@dataclass
+class _Courier:
+    courier_id: int
+    courier_type: str
+    regions: List[int]
+    working_hours: List[str]
+    coeff: int
+    payload: int
+
+    def __init__(self,
+                 courier: asyncpg.Record) -> None:
+        self.courier_id = courier.get('courier_id')
+        self.courier_type = courier.get('courier_type')
+        self.regions = courier.get('regions')
+        self.working_hours = courier.get('working_hours')
+        self.coeff = courier.get('c')
+        self.payload = courier.get('payload')
+
+
+@dataclass
+class _Order:
+    order_id: int
+    weight: float
+    region: int
+    delivery_hours: List[str]
 
 
 def async_cache(func: Callable) -> Callable:
