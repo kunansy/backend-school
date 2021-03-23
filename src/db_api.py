@@ -45,13 +45,13 @@ class Database:
     @async_cache
     async def get_courier_types(self) -> List[str]:
         async with self._pool.acquire() as conn:
-            command = COMMANDS['get']['courier_type'].format(
+            query = COMMANDS['get']['courier_type'].format(
                 fields='type'
             )
 
-            logger.info(f"Requested to the database\n{command}")
+            logger.info(f"Requested to the database:\n{query}")
             try:
-                records = await conn.fetch(command)
+                records = await conn.fetch(query)
             except Exception as e:
                 error_logger.exception(e)
                 raise
@@ -65,7 +65,7 @@ class Database:
     async def add_couriers(self,
                            couriers: list) -> None:
         async with self._pool.acquire() as conn:
-            command = COMMANDS['insert']['courier']
+            query = COMMANDS['insert']['courier']
             couriers = ', '.join(
                 f"({courier.courier_id}, "
                 f"(SELECT t.id FROM courier_type t WHERE t.type = {courier.courier_type}),"
@@ -74,11 +74,11 @@ class Database:
                 ")"
                 for courier in couriers
             )
-            command = f"{command} {couriers};"
-            logger.debug(f"Requested to the database: \n {command}")
+            query = f"{query} {couriers};"
+            logger.debug(f"Requested to the database: \n {query}")
 
             try:
-                await conn.execute(command)
+                await conn.execute(query)
             except Exception:
                 error_logger.exception()
                 raise
