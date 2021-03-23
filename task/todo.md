@@ -7,7 +7,7 @@
 - [x] ~~install and configure ASGI~~ Application server is built into Sanic
 - [ ] configure systemd to restart the service after rebooting
 - [ ] learn `docker` library and use it to make tests 
-- [ ] learn `asyncpg`
+- [x] learn `asyncpg`
 - [ ] add mock tests
 - [x] add benchmark
 - [x] add swagger (`sanic-openapi`)
