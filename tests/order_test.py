@@ -40,121 +40,47 @@ def test_lack_of_fields():
         OrderModel(**test_data)
 
 
-def test_float_id():
+@pytest.mark.parametrize(
+    'value', (12.97, '12', 0, -1)
+)
+def test_wrong_id(value):
     test_data = TEST_DATA.copy()
-    test_data['order_id'] = 12.98
+    test_data['order_id'] = value
 
     with pytest.raises(ValidationError):
         OrderModel(**test_data)
 
 
-def test_string_id():
+@pytest.mark.parametrize(
+    ('value', 'expected'), (
+        (12, 12), ('13.56', 13.56), (50, 50)
+    )
+)
+def test_right_weight(value, expected):
     test_data = TEST_DATA.copy()
-    test_data['order_id'] = '12'
-
-    with pytest.raises(ValidationError):
-        OrderModel(**test_data)
-
-
-def test_zero_id():
-    test_data = TEST_DATA.copy()
-    test_data['order_id'] = 0
-
-    with pytest.raises(ValidationError):
-        OrderModel(**test_data)
-
-
-def test_negative_id():
-    test_data = TEST_DATA.copy()
-    test_data['order_id'] = -1
-
-    with pytest.raises(ValidationError):
-        OrderModel(**test_data)
-
-
-def test_int_weight():
-    test_data = TEST_DATA.copy()
-    test_data['weight'] = 12
+    test_data['weight'] = value
 
     order = OrderModel(**test_data)
-    assert order.weight == 12
+    assert order.weight == expected
 
 
-def test_string_weight():
+@pytest.mark.parametrize(
+    'value', (0, -1, 51, 0.009)
+)
+def test_wrong_weight(value):
     test_data = TEST_DATA.copy()
-    test_data['weight'] = '13.56'
-
-    order = OrderModel(**test_data)
-    assert order.weight == 13.56
-
-
-def test_zero_weight():
-    test_data = TEST_DATA.copy()
-    test_data['weight'] = 0
+    test_data['weight'] = value
 
     with pytest.raises(ValidationError):
         OrderModel(**test_data)
 
 
-def test_negative_weight():
+@pytest.mark.parametrize(
+    'value', (11.2, 0, -1, '51')
+)
+def test_wrong_region(value):
     test_data = TEST_DATA.copy()
-    test_data['weight'] = -1
-
-    with pytest.raises(ValidationError):
-        OrderModel(**test_data)
-
-
-def test_big_weight():
-    test_data = TEST_DATA.copy()
-    test_data['weight'] = 51
-
-    with pytest.raises(ValidationError):
-        OrderModel(**test_data)
-
-
-def test_exactly_max_weight():
-    test_data = TEST_DATA.copy()
-    test_data['weight'] = 50
-
-    order = OrderModel(**test_data)
-    assert order.weight == 50
-
-
-def test_exactly_min_weight():
-    test_data = TEST_DATA.copy()
-    test_data['weight'] = 0.01
-
-    order = OrderModel(**test_data)
-    assert order.weight == 0.01
-
-
-def test_string_region():
-    test_data = TEST_DATA.copy()
-    test_data['region'] = '51'
-
-    with pytest.raises(ValidationError):
-        OrderModel(**test_data)
-
-
-def test_float_region():
-    test_data = TEST_DATA.copy()
-    test_data['region'] = 11.2
-
-    with pytest.raises(ValidationError):
-        OrderModel(**test_data)
-
-
-def test_zero_region():
-    test_data = TEST_DATA.copy()
-    test_data['region'] = 0
-
-    with pytest.raises(ValidationError):
-        OrderModel(**test_data)
-
-
-def test_negative_region():
-    test_data = TEST_DATA.copy()
-    test_data['region'] = -1
+    test_data['region'] = value
 
     with pytest.raises(ValidationError):
         OrderModel(**test_data)
