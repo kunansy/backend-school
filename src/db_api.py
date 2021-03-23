@@ -155,10 +155,12 @@ class Database:
                    query: str,
                    conn: asyncpg.Connection):
         try:
+            logger.debug(f"Requested to the database:\n{query}")
             result = await conn.fetch(query)
         except Exception:
             error_logger.exception()
             raise
+        logger.debug("Request successfully completed")
         return result
 
     async def get(self,
@@ -178,10 +180,12 @@ class Database:
                        query: str,
                        conn: asyncpg.Connection):
         try:
+            logger.debug(f"Requested to the database:\n{query}")
             result = await conn.execute(query)
         except Exception:
             error_logger.exception()
             raise
+        logger.debug("Request successfully completed")
         return result
 
     async def execute(self,
@@ -206,9 +210,7 @@ class Database:
             courier_types
         ;
         """
-        logger.info(f"Requested to the database:\n{query}")
         records = await self.get(query)
-        logger.debug("Request successfully completed")
 
         return [
             record.get('type')
@@ -255,10 +257,7 @@ class Database:
             c.{field} = {value}
         ;
         """
-
-        logger.debug(f"Requested to the database:\n{query}")
         result = await self.get(query)
-        logger.debug("Request successfully compelted")
 
         return [
             _Courier(courier)
@@ -310,9 +309,7 @@ class Database:
             {orders}
         ;
         """
-        logger.debug(f"Requested to the database: \n {query}")
         await self.execute_t(query)
-        logger.debug(f"Orders ({len(orders)}) added to database")
 
     async def assign_orders(self,
                             courier_id: int) -> list:
