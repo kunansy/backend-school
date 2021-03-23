@@ -241,30 +241,28 @@ class Database:
 
     async def get_courier(self,
                           value,
-                          field: str = 'courier_id'):
-        async with self._pool.acquire() as conn:
-            query = f"""
-            SELECT 
-                c.courier_id, t.type, c.regions, c.working_hours,
-                t.c, t.payload
-            FROM 
-                courier c
-            INNER JOIN 
-                courier_type t ON c.courier_type = t.id;
-            WHERE 
-                c.{field} = {value}
-            ;
-            """
+                          field: str = 'courier_id') -> List[_Courier]:
+        query = f"""
+        SELECT 
+            c.courier_id, t.type, c.regions, 
+            c.working_hours, t.c, t.payload
+        FROM 
+            courier c
+        INNER JOIN 
+            courier_type t ON c.courier_type = t.id;
+        WHERE 
+            c.{field} = {value}
+        ;
+        """
 
-            logger.debug(f"Requested to the database:\n{query}")
-            try:
-                result = await conn.fetch(query)
-            except Exception:
-                logger.exception()
-                raise
-            logger.debug("Request successfully compelted")
+        logger.debug(f"Requested to the database:\n{query}")
+        result = await self.get(query)
+        logger.debug("Request successfully compelted")
 
-            return result
+        return [
+            _Courier(courier)
+            for courier in result
+        ]
 
     async def update_courier(self,
                              courier) -> None:
