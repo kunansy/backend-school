@@ -46,8 +46,8 @@ COMMANDS = {
     },
     "get": {
         "courier": "SELECT {fields} FROM courier",
+        "courier_type": "SELECT {fields} FROM courier_type",
         "order": "SELECT {fields} FROM order",
-        "order_type": "SELECT {fields} FROM order_type",
         "status": "SELECT {fields} FROM status"
     },
     "insert": {
