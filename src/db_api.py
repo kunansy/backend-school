@@ -80,6 +80,17 @@ class _Courier:
         self.coeff = int(courier.get('c'))
         self.payload = int(courier.get('payload'))
 
+    def is_order_valid(self, order) -> bool:
+        is_time_intercept = any(
+            w_time | d_time
+            for w_time, d_time in zip(self.working_hours, order.delivery_time)
+        )
+        return (
+            order.weight <= self.payload and
+            order.region in self.regions and
+            is_time_intercept
+        )
+
 
 @dataclass
 class _Order:
