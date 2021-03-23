@@ -4,8 +4,6 @@ from typing import Any, Dict, List
 from pydantic import BaseModel, conlist, validator, conint, \
     confloat
 
-import src.db_api as db_api
-
 
 VALIDATION_ERROR_TEMPLATE = {
     "validation_error": {}
@@ -74,7 +72,7 @@ class CourierModel(BaseModel):
     @validator('courier_type')
     def courier_type_validator(cls,
                                value: str) -> str:
-        possible_courier_types = db_api.get_courier_types()
+        possible_courier_types = ['foot', 'bike', 'car']
 
         if (value := value.lower()) in possible_courier_types:
             return value
