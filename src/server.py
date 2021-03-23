@@ -85,6 +85,9 @@ async def close_db_connection(app: Sanic,
 @doc.response(400, {"validation_error": {"couriers": [{"id": int}]}},
               description="Some of couriers are invalid")
 async def add_couriers(request: Request) -> response.HTTPResponse:
+    if not (data := request.json.get('data')):
+        return response.json({'couriers': []}, status=400)
+
     couriers, invalid_couriers_id = [], []
     for courier in request.json['data']:
         try:
