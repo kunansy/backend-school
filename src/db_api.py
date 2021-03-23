@@ -275,22 +275,32 @@ class Database:
         ]
 
     async def update_courier(self,
-                             courier) -> None:
-        # await assign_order(courier.courier_id)
-        # logger.info(f"{courier.courier_id} updated")
-        pass
+                             **data):
+        courier_id = data.pop('id')
 
-    async def get_order(self,
-                        value=None,
-                        field: str = 'order_id'):
-        async with self._pool.acquire() as conn:
-            query = COMMANDS['get']['order'].format(
-                fields='*'
-            )
-            if value:
-                query = f"{query} WHERE {field} = {value}"
+        last_status_query = f"""
+        SELECT * FROM status WHERE courier_id = {courier_id};
+        """
+        last_orders = await self.get(last_status_query)
 
-            logger.debug(f"Requested to the database: \n{query}")
+        values_to_set = ', '.join(
+            f"{field} = {value}"
+            for field, value in data.items()
+        )
+        update_query = f"""
+        UPDATE 
+            couriers 
+        SET 
+            {values_to_set}
+        WHERE 
+            courier_id = {courier_id}
+        RETURNING
+            couriers.*
+        ;
+        """
+        updated_courier = await self.execute_t(update_query)
+
+        return updated_courier
 
             try:
                 orders = await conn.fetch(query)
