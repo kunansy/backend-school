@@ -186,13 +186,13 @@ class Database:
 
     async def get(self,
                   query: str):
-        """ Perform request without transaction """
+        """ Fetch query without transaction """
         async with self._pool.acquire() as conn:
             return await self._get(query, conn)
 
     async def get_t(self,
                     query: str):
-        """ Perform request with transaction """
+        """ Fetch query with transaction """
         async with self._pool.acquire() as conn:
             async with conn.transaction():
                 return await self._get(query, conn)
