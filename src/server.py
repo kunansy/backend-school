@@ -105,7 +105,7 @@ async def add_couriers(request: Request) -> response.HTTPResponse:
 
     added_couriers = {
         "couriers": [
-            courier.dict(include={'id'})
+            {"id": courier.courier_id}
             for courier in couriers
         ]
     }
