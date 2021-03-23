@@ -73,6 +73,29 @@ class Database:
             await conn.execute(command)
             logger.info(f"'{table}' created")
 
+    async def _get(self,
+                   query: str,
+                   conn: asyncpg.Connection):
+        try:
+            result = await conn.fetch(query)
+        except Exception:
+            error_logger.exception()
+            raise
+        return result
+
+    async def get(self,
+                  query: str):
+        """ Perform request without transaction """
+        async with self._pool.acquire() as conn:
+            return await self._get(query, conn)
+
+    async def get_t(self,
+                    query: str):
+        """ Perform request with transaction """
+        async with self._pool.acquire() as conn:
+            async with conn.transaction():
+                return await self._get(query, conn)
+
     @async_cache
     async def get_courier_types(self) -> List[str]:
         async with self._pool.acquire() as conn:
