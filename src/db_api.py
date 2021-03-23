@@ -69,8 +69,8 @@ class Database:
             couriers = ', '.join(
                 f"({courier.courier_id}, "
                 f"(SELECT t.id FROM courier_type t WHERE t.type = {courier.courier_type}),"
-                f"{courier.regions},"
-                f"{courier.working_hours}"
+                f"'{{{', '.join(courier.regions)}}}',"
+                f"'{{{', '.join(courier.working_hours)}}}'"
                 ")"
                 for courier in couriers
             )
