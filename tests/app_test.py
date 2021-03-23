@@ -50,8 +50,24 @@ TEST_COURIERS = {
 
 @mock.patch("src.server.app.db.add_couriers")
 def test_add_couriers_with_valid_couriers(db_mock: mock.AsyncMock):
-    pass
+    json = TEST_COURIERS.copy()
+    expected_couriers = [
+        CourierModel(**courier)
+        for courier in json['data']
+    ]
+    expected_resp_json = {
+        "couriers": [
+            {"id": courier.courier_id}
+            for courier in expected_couriers
+        ]
+    }
 
+    request, response = app.test_client.post('/couriers', json=json)
+
+    db_mock.assert_awaited_with(expected_couriers)
+
+    assert response.status == 201
+    assert response.json == expected_resp_json
 
 
 @mock.patch("src.server.app.db.add_couriers")
