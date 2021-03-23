@@ -1,16 +1,16 @@
 __all__ = 'COMMANDS', 'TABLES'
 
 CREATE_COURIER_TABLE = """
-CREATE TABLE courier (
+CREATE TABLE couriers (
     courier_id SERIAL PRIMARY KEY,
-    courier_type INTEGER REFERENCES courier_type (id) NOT NULL,
+    courier_type INTEGER REFERENCES courier_types (id) NOT NULL,
     regions INTEGER[],
     working_hours VARCHAR[] 
 );
 """
 
 CREATE_COURIER_TYPE_TABLE = """
-CREATE TABLE courier_type (
+CREATE TABLE courier_types (
     id SERIAL PRIMARY KEY,
     type VARCHAR(5) NOT NULL,
     c INTEGER NOT NULL,
@@ -30,7 +30,7 @@ CREATE TABLE orders (
 CREATE_STATUS_TABLE = """
 CREATE TABLE status (
     id SERIAL PRIMARY KEY,
-    courier_id INTEGER REFERENCES courier (courier_id) NOT NULL,
+    courier_id INTEGER REFERENCES couriers (courier_id) NOT NULL,
     order_id INTEGER REFERENCES orders (order_id) NOT NULL,
     assigned_time TIME,
     completed_time DEFAULT NULL
@@ -52,18 +52,18 @@ COMMANDS = {
         "status": CREATE_STATUS_TABLE
     },
     "get": {
-        "courier": "SELECT {fields} FROM courier",
-        "courier_type": "SELECT {fields} FROM courier_type",
+        "courier": "SELECT {fields} FROM couriers",
+        "courier_type": "SELECT {fields} FROM courier_types",
         "order": "SELECT {fields} FROM orders",
         "status": "SELECT {fields} FROM status"
     },
     "insert": {
-        "courier": "INSERT INTO courier VALUES {values}",
+        "courier": "INSERT INTO couriers VALUES {values}",
         "order": "INSERT INTO orders VALUES {values}",
-        "order_type": "INSERT INTO courier_type VALUES {values}",
+        "order_type": "INSERT INTO courier_types VALUES {values}",
     },
     "update": {
-        "UPDATE courier SET {fields} WHERE {condition}"
+        "UPDATE couriers SET {fields} WHERE {condition}"
     },
     "delete": {}
 }
