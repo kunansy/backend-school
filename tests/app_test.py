@@ -122,6 +122,16 @@ def test_add_couriers_with_invalid_couriers(add_couriers_mock: mock.AsyncMock):
     assert response.json == expected_response_json
 
 
+@mock.patch("src.server.app.db.add_couriers")
+def test_add_courier_with_no_courier(add_couriers_mock: mock.AsyncMock):
+    request, response = app.test_client.post('/couriers', json={'data': []})
+
+    assert not add_couriers_mock.called
+
+    assert response.status == 400
+    assert response.json == {'couriers': []}
+
+
 @mock.patch("src.server.app.db.get_courier")
 def test_update_courier_with_no_courier(get_courier_mock: mock.AsyncMock):
     pass
