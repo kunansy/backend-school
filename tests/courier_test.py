@@ -38,81 +38,39 @@ def test_lack_of_fields():
         CourierModel(**test_data)
 
 
-def test_float_id():
+@pytest.mark.parametrize(
+    'value', (12.98, '88', 0, -1)
+)
+def test_wrong_id(value):
     test_data = TEST_DATA.copy()
-    test_data['courier_id'] = 12.98
+    test_data['courier_id'] = value
 
     with pytest.raises(ValidationError):
         CourierModel(**test_data)
 
 
-def test_string_id():
+@pytest.mark.parametrize(
+    'value', ('fot', '')
+)
+def test_wrong_type(value):
     test_data = TEST_DATA.copy()
-    test_data['courier_id'] = '88'
+    test_data['courier_type'] = value
 
     with pytest.raises(ValidationError):
         CourierModel(**test_data)
 
 
-def test_zero_id():
+@pytest.mark.parametrize(
+    'value', (
+        [1.12, 3, 12.99],
+        [1, 4, '12'],
+        [0, 1, 5],
+        [1, 5, -2]
+    )
+)
+def test_float_regions(value):
     test_data = TEST_DATA.copy()
-    test_data['courier_id'] = 0
-
-    with pytest.raises(ValidationError):
-        CourierModel(**test_data)
-
-
-def test_negative_id():
-    test_data = TEST_DATA.copy()
-    test_data['courier_id'] = -1
-
-    with pytest.raises(ValidationError):
-        CourierModel(**test_data)
-
-
-def test_wrong_type():
-    test_data = TEST_DATA.copy()
-    test_data['courier_type'] = 'fot'
-
-    with pytest.raises(ValidationError):
-        CourierModel(**test_data)
-
-
-def test_empty_type():
-    test_data = TEST_DATA.copy()
-    test_data['courier_type'] = ''
-
-    with pytest.raises(ValidationError):
-        CourierModel(**test_data)
-
-
-def test_float_regions():
-    test_data = TEST_DATA.copy()
-    test_data['regions'] = [1.12, 3, 12.99]
-
-    with pytest.raises(ValidationError):
-        CourierModel(**test_data)
-
-
-def test_string_regions():
-    test_data = TEST_DATA.copy()
-    test_data['regions'] = [1, 4, '12']
-
-    with pytest.raises(ValidationError):
-        CourierModel(**test_data)
-
-
-def test_zero_regions():
-    test_data = TEST_DATA.copy()
-    test_data['regions'] = [0, 1, 5]
-
-    with pytest.raises(ValidationError):
-        CourierModel(**test_data)
-
-
-def test_negative_regions():
-    test_data = TEST_DATA.copy()
-    test_data['regions'] = [1, 5, -2]
+    test_data['regions'] = value
 
     with pytest.raises(ValidationError):
         CourierModel(**test_data)
