@@ -329,6 +329,15 @@ class Database:
         ;
         """
         updated_courier = await self.execute_t(update_query)
+        courier = _Courier(updated_courier)
+
+        orders_to_cancel = [
+            order
+            for order in last_orders
+            if not courier.is_order_valid(order)
+        ]
+
+        await self.cancel_orders(courier_id, orders_to_cancel)
 
         return updated_courier
 
