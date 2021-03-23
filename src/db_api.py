@@ -1,10 +1,10 @@
-from typing import List, Callable
+from typing import List, Callable, Iterable, Dict
 
 import asyncpg
 from environs import Env
 from sanic.log import logger, error_logger
 
-from src.db_commands import COMMANDS
+from src.db_commands import COMMANDS, TABLES
 
 
 env = Env()
@@ -41,6 +41,37 @@ class Database:
     async def close(self):
         await self._pool.close()
         logger.debug("connection pool closed")
+
+    async def migrate(self) -> None:
+        """
+        Make migration: drop all databases with the same names,
+        create new ones according to the schemas.
+        """
+        async with self._pool.acquire() as conn:
+            async with conn.transaction():
+                logger.info("Migration started")
+                await Database._drop_tables(TABLES, conn)
+                await Database._create_tables(COMMANDS['create'], conn)
+
+    @staticmethod
+    async def _drop_tables(tables: Iterable[str],
+                           conn: asyncpg.Connection) -> None:
+        logger.debug("Dropping tables...")
+
+        for table in tables:
+            await conn.execute(
+                f"DROP TABLE {table};"
+            )
+            logger.info(f"'{table}' dropped")
+
+    @staticmethod
+    async def _create_tables(commands: Dict[str, str],
+                             conn: asyncpg.Connection) -> None:
+        logger.debug("Create tables...")
+
+        for table, command in commands.items():
+            await conn.execute(command)
+            logger.info(f"'{table}' created")
 
     @async_cache
     async def get_courier_types(self) -> List[str]:
