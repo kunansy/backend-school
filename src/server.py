@@ -90,7 +90,7 @@ async def add_couriers(request: Request) -> response.HTTPResponse:
         try:
             courier = CourierModel(**courier)
         except ValidationError as e:
-            invalid_couriers_id += [courier.get('id', -1)]
+            invalid_couriers_id += [courier.get('courier_id', -1)]
             error_logger.error(e.json(indent=4))
         else:
             couriers += [courier]
@@ -99,7 +99,7 @@ async def add_couriers(request: Request) -> response.HTTPResponse:
         error_logger.error("Request rejected, it contains invalid "
                            f"couriers ({len(invalid_couriers_id)})")
         context = validation_error('couriers', invalid_couriers_id)
-        abort(400, context)
+        return response.json(context, status=400)
 
     await app.db.add_couriers(couriers)
 
