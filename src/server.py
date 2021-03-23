@@ -101,7 +101,7 @@ async def add_couriers(request: Request) -> response.HTTPResponse:
         context = validation_error('couriers', invalid_couriers_id)
         abort(400, context)
 
-    await db_api.add_couriers(couriers)
+    await app.db.add_couriers(couriers)
 
     added_couriers = {
         "couriers": [
@@ -140,7 +140,7 @@ async def update_courier(request: Request,
         error_logger.error(e.json(indent=4))
         abort(400)
 
-    await db_api.update_courier(updated_courier)
+    await app.db.update_courier(updated_courier)
 
     return response.json(updated_courier.json())
 
@@ -182,7 +182,7 @@ async def add_orders(request: Request) -> response.HTTPResponse:
         context = validation_error('orders', invalid_orders_id)
         abort(400, context)
 
-    await db_api.add_orders(orders)
+    await app.db.add_orders(orders)
 
     added_orders = {
         "orders": [
@@ -204,11 +204,11 @@ async def add_orders(request: Request) -> response.HTTPResponse:
 async def assign(request: Request) -> response.HTTPResponse:
     courier_id = request.json.get('courier_id', -1)
 
-    if (courier := db_api.get_courier(courier_id)) is None:
+    if (courier := await app.db.get_courier(courier_id)) is None:
         error_logger.error(f"Courier with {courier_id=} not found")
         abort(400)
 
-    assigned_orders = await db_api.assign_orders(courier)
+    assigned_orders = await app.db.assign_orders(courier)
     return response.json(assigned_orders)
 
 
@@ -226,14 +226,14 @@ async def complete(request: Request) -> response.HTTPResponse:
         error_logger.error(f"Invalid complete request\n{e.json(indent=4)}")
         abort(400)
 
-    if (courier := await db_api.get_courier(complete.courier_id)) is None:
+    if (courier := await app.db.get_courier(complete.courier_id)) is None:
         error_logger.error(f"Courier with {complete.courier_id} not found")
         abort(400)
-    if (order := await db_api.get_order(complete.order_id)) is None:
+    if (order := await app.db.get_order(complete.order_id)) is None:
         error_logger.error(f"Order with {complete.order_id} not found")
         abort(400)
 
-    if (assign_info := await db_api.assign_info(order.order_id)) is None:
+    if (assign_info := await app.db.assign_info(order.order_id)) is None:
         error_logger.error(f"Order {order.order_id} was not assigned")
         abort(400)
 
@@ -244,7 +244,7 @@ async def complete(request: Request) -> response.HTTPResponse:
         )
         abort(400)
 
-    await db_api.complete_order(complete)
+    await app.db.complete_order(complete)
 
     return response.json(complete.dict(include={'courier_id'}))
 
