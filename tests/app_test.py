@@ -105,9 +105,18 @@ def test_add_couriers_with_valid_couriers(db_mock: mock.AsyncMock):
     assert response.json == expected_resp_json
 
 
-@mock.patch("src.server.app.db.add_couriers")
-def test_add_couriers_with_invalid_couriers(db_mock: mock.AsyncMock):
-    pass
+def test_add_couriers_with_invalid_couriers():
+    json = TEST_INVALID_COURIERS.copy()
+    expected_response_json = {
+        'validation_error': {
+            'couriers': [{'id': 1}, {'id': -2}, {'id': 13}, {'id': 45}]
+        }
+    }
+
+    request, response = app.test_client.post('/couriers', json=json)
+
+    assert response.status == 400
+    assert response.json == expected_response_json
 
 
 @mock.patch("src.server.app.db.get_courier")
