@@ -285,6 +285,25 @@ class Database:
             for courier in result
         ]
 
+    async def _last_orders(self,
+                           courier_id: int) -> [_Order]:
+        last_orders_ids_query = f"""
+        SELECT 
+            order_id 
+        FROM 
+            status 
+        WHERE 
+            courier_id = {courier_id}
+        ;
+        """
+        last_orders_ids = await self.get(last_orders_ids_query)
+
+        last_orders_condition = f"""
+        WHERE 
+            courier_id IN ({', '.join(last_orders_ids)})
+        """
+        return await self.get_orders(last_orders_condition)
+
     async def update_courier(self,
                              **data):
         courier_id = data.pop('id')
