@@ -1,6 +1,10 @@
 from typing import List, Callable
 
+import asyncpg
 from environs import Env
+from sanic.log import logger, error_logger
+
+from src.db_commands import COMMANDS
 
 
 env = Env()
@@ -21,7 +25,22 @@ def async_cache(func: Callable) -> Callable:
 
 class Database:
     def __init__(self) -> None:
-        pass
+        self._pool = None
+
+    async def connect(self) -> None:
+        if self._pool:
+            return
+
+        self._pool: asyncpg.Pool = await asyncpg.create_pool(
+            dsn=env('DB_DSN'),
+            command_timeout=60,
+            max_size=20
+        )
+        logger.debug("Connection pool created")
+
+    async def close(self):
+        await self._pool.close()
+        logger.debug("connection pool closed")
 
     @async_cache
     async def get_courier_types(self) -> List[str]:
