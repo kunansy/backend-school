@@ -20,7 +20,7 @@ sys.path += [
 ]
 
 
-import src.db_api as db_api
+from src.db_api import Database
 import src.logging_config as logging_config
 from src.model import CourierModel, validation_error, OrderModel, CompleteModel
 
@@ -49,7 +49,7 @@ def is_json_patching_courier_valid(json_dict: dict) -> List[str]:
 
 app = Sanic(__name__, log_config=logging_config.LOGGING_CONFIG)
 app.blueprint(swagger_blueprint)
-app.db = db_api.Database()
+app.db = Database()
 
 env = Env()
 env.read_env()
