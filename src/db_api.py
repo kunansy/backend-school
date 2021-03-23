@@ -86,7 +86,17 @@ class _Order:
     order_id: int
     weight: float
     region: int
-    delivery_hours: List[str]
+    delivery_hours: List[TimeSpan]
+
+    def __init__(self,
+                 order: asyncpg.Record) -> None:
+        self.order_id = int(order.get('order_id'))
+        self.weight = float(order.get('weight'))
+        self.region = int(order.get('region'))
+        self.delivery_hours = [
+            TimeSpan(time_)
+            for time_ in order.get('delivery_hours')
+        ]
 
 
 def async_cache(func: Callable) -> Callable:
