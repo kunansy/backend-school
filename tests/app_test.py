@@ -128,7 +128,7 @@ def test_add_courier_with_no_courier(add_couriers_mock: mock.AsyncMock):
 
     assert not add_couriers_mock.called
 
-    assert response.status == 400
+    assert response.status == 200
     assert response.json == {'couriers': []}
 
 

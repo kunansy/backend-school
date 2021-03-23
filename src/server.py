@@ -85,8 +85,8 @@ async def close_db_connection(app: Sanic,
 @doc.response(400, {"validation_error": {"couriers": [{"id": int}]}},
               description="Some of couriers are invalid")
 async def add_couriers(request: Request) -> response.HTTPResponse:
-    if not (data := request.json.get('data')):
-        return response.json({'couriers': []}, status=400)
+    if not request.json.get('data'):
+        return response.json({'couriers': []})
 
     couriers, invalid_couriers_id = [], []
     for courier in request.json['data']:
@@ -125,25 +125,38 @@ async def add_couriers(request: Request) -> response.HTTPResponse:
 @doc.response(400, None, description="Courier not found or wrong field given")
 async def update_courier(request: Request,
                          courier_id: int) -> response.HTTPResponse:
-    courier: CourierModel = await app.db.get_courier(courier_id)
+    courier = await app.db.get_courier(courier_id)
 
-    if courier is None:
+    if not courier:
         error_logger.error(f"Courier ({courier_id}) not found")
-        abort(400)
+        return response.HTTPResponse(status=400)
+
+    courier = CourierModel(
+        courier_id=courier.courier_id,
+        courier_type=courier.courier_type,
+        regions=courier.regions,
+        working_hours=[
+            str(w_hours)
+            for w_hours in courier.working_hours
+        ]
+    )
 
     if invalid_fields := is_json_patching_courier_valid(request.json):
         error_logger.error(f"Only {PATCHABLE_FIELDS} might be "
                            f"updated, but {invalid_fields} found")
-        abort(400)
+        return response.HTTPResponse(status=400)
 
     try:
         courier_data = {**courier.dict(), **request.json}
         updated_courier = CourierModel(**courier_data)
     except ValidationError as e:
         error_logger.error(e.json(indent=4))
-        abort(400)
+        return response.HTTPResponse(status=400)
 
-    await app.db.update_courier(updated_courier)
+    await app.db.update_courier(
+        id=courier.courier_id,
+        **request.json
+    )
 
     return response.json(updated_courier.json())
 
@@ -236,7 +249,7 @@ async def complete(request: Request) -> response.HTTPResponse:
         error_logger.error(f"Order with {complete.order_id} not found")
         abort(400)
 
-    if (assign_info := await app.db.assign_info(order.order_id)) is None:
+    if (assign_info := await app.db.status(order.order_id)) is None:
         error_logger.error(f"Order {order.order_id} was not assigned")
         abort(400)
 

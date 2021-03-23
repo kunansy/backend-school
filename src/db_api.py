@@ -83,7 +83,7 @@ class _Courier:
     def is_order_valid(self, order) -> bool:
         is_time_intercept = any(
             w_time | d_time
-            for w_time, d_time in zip(self.working_hours, order.delivery_time)
+            for w_time, d_time in zip(self.working_hours, order.delivery_hours)
         )
         return (
             order.weight <= self.payload and
@@ -262,7 +262,7 @@ class Database:
         await self.execute_t(query)
 
     async def get_courier(self,
-                          courier_id: int) -> List[_Courier]:
+                          courier_id: int) -> _Courier or None:
         query = f"""
         SELECT 
             c.courier_id, t.type, c.regions, 
@@ -276,11 +276,10 @@ class Database:
         ;
         """
         result = await self.get(query)
-
-        return [
-            _Courier(courier)
-            for courier in result
-        ]
+        try:
+            return _Courier(result[0])
+        except IndexError:
+            return
 
     async def _last_orders(self,
                            courier_id: int) -> [_Order]:
@@ -307,6 +306,7 @@ class Database:
 
         last_orders = await self._last_orders(courier_id)
 
+        # TODO: work with regions and hours
         values_to_set = ', '.join(
             f"{field} = {value}"
             for field, value in data.items()
