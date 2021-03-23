@@ -84,7 +84,7 @@ TEST_INVALID_COURIERS = {
 
 
 @mock.patch("src.server.app.db.add_couriers")
-def test_add_couriers_with_valid_couriers(db_mock: mock.AsyncMock):
+def test_add_couriers_with_valid_couriers(add_couriers_mock: mock.AsyncMock):
     json = TEST_COURIERS.copy()
     expected_couriers = [
         CourierModel(**courier)
@@ -99,13 +99,14 @@ def test_add_couriers_with_valid_couriers(db_mock: mock.AsyncMock):
 
     request, response = app.test_client.post('/couriers', json=json)
 
-    db_mock.assert_awaited_with(expected_couriers)
+    add_couriers_mock.assert_awaited_with(expected_couriers)
 
     assert response.status == 201
     assert response.json == expected_resp_json
 
 
-def test_add_couriers_with_invalid_couriers():
+@mock.patch("src.server.app.db.add_couriers")
+def test_add_couriers_with_invalid_couriers(add_couriers_mock: mock.AsyncMock):
     json = TEST_INVALID_COURIERS.copy()
     expected_response_json = {
         'validation_error': {
@@ -114,6 +115,8 @@ def test_add_couriers_with_invalid_couriers():
     }
 
     request, response = app.test_client.post('/couriers', json=json)
+
+    assert not add_couriers_mock.called
 
     assert response.status == 400
     assert response.json == expected_response_json
