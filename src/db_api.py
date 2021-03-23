@@ -217,27 +217,28 @@ class Database:
 
     async def add_couriers(self,
                            couriers: list) -> None:
-        async with self._pool.acquire() as conn:
-            async with conn.transaction():
-                query = COMMANDS['insert']['courier']
-                couriers = ', '.join(
-                    f"({courier.courier_id}, "
-                    f"(SELECT t.id FROM courier_type t WHERE t.type = {courier.courier_type}),"
-                    f"'{{{', '.join(courier.regions)}}}',"
-                    f"'{{{', '.join(courier.working_hours)}}}'"
-                    ")"
-                    for courier in couriers
-                )
-                query = f"{query} {couriers};"
-                logger.debug(f"Requested to the database: \n {query}")
+        if not couriers:
+            return
 
-                try:
-                    await conn.execute(query)
-                except Exception:
-                    error_logger.exception()
-                    raise
+        couriers = ', '.join(
+            f"({courier.courier_id}, "
+            f"(SELECT t.id FROM courier_type t WHERE t.type = {courier.courier_type}), "
+            f"'{{{', '.join(courier.regions)}}}', "
+            f"'{{{', '.join(courier.working_hours)}}}'"
+            ")"
+            for courier in couriers
+        )
 
-            logger.debug(f"Couriers ({len(couriers)}) added to database")
+        query = f"""
+        INSERT INTO
+            couriers
+        VALUES
+            {couriers}
+        ;
+        """
+        logger.debug(f"Requested to the database: \n {query}")
+        await self.execute_t(query)
+        logger.debug(f"Couriers ({len(couriers)}) added to database")
 
     async def get_courier(self,
                           value,
