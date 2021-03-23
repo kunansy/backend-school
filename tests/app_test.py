@@ -47,6 +47,41 @@ TEST_COURIERS = {
     ]
 }
 
+TEST_INVALID_COURIERS = {
+    "data": [
+        {
+            "courier_id": 1,
+            "courier_type": "fot",
+            "regions": [1, 2, 1487],
+            "working_hours": ["09:11-12:56", "20:10-23:42"]
+        },
+        {
+            "courier_id": -2,
+            "courier_type": "foot",
+            "regions": [1487],
+            "working_hours": ["23:11-23:12"]
+        },
+        {
+            "courier_id": 13,
+            "courier_type": "bike",
+            "regions": [-197, 17],
+            "working_hours": ["09:11-12:56"]
+        },
+        {
+            "courier_id": 45,
+            "courier_type": "car",
+            "regions": [],
+            "working_hours": ['today']
+        },
+        {
+            "courier_id": 46,
+            "courier_type": "car",
+            "regions": [],
+            "working_hours": []
+        },
+    ]
+}
+
 
 @mock.patch("src.server.app.db.add_couriers")
 def test_add_couriers_with_valid_couriers(db_mock: mock.AsyncMock):
