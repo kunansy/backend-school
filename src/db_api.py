@@ -1,5 +1,11 @@
 from typing import List, Callable
 
+from environs import Env
+
+
+env = Env()
+env.read_env()
+
 
 def async_cache(func: Callable) -> Callable:
     results = []
