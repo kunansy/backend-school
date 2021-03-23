@@ -137,7 +137,7 @@ class Database:
         )
         logger.debug("Connection pool created")
 
-    async def close(self):
+    async def close(self) -> None:
         await self._pool.close()
         logger.debug("connection pool closed")
 
@@ -259,13 +259,10 @@ class Database:
             {couriers}
         ;
         """
-        logger.debug(f"Requested to the database: \n {query}")
         await self.execute_t(query)
-        logger.debug(f"Couriers ({len(couriers)}) added to database")
 
     async def get_courier(self,
-                          value,
-                          field: str = 'courier_id') -> List[_Courier]:
+                          courier_id: int) -> List[_Courier]:
         query = f"""
         SELECT 
             c.courier_id, t.type, c.regions, 
@@ -275,7 +272,7 @@ class Database:
         INNER JOIN 
             courier_type t ON c.courier_type = t.id;
         WHERE 
-            c.{field} = {value}
+            c.courier_id = {courier_id}
         ;
         """
         result = await self.get(query)
@@ -308,10 +305,7 @@ class Database:
                              **data):
         courier_id = data.pop('id')
 
-        last_status_query = f"""
-        SELECT * FROM status WHERE courier_id = {courier_id};
-        """
-        last_orders = await self.get(last_status_query)
+        last_orders = await self._last_orders(courier_id)
 
         values_to_set = ', '.join(
             f"{field} = {value}"
@@ -383,8 +377,8 @@ class Database:
                             courier_id: int) -> list:
         pass
 
-    async def assign_info(self,
-                          order_id: int):
+    async def status(self,
+                     order_id: int):
         pass
 
     async def complete_order(self,
