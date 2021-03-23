@@ -33,13 +33,13 @@ TEST_COURIERS = {
             "working_hours": ["23:11-23:12"]
         },
         {
-            "courier_id": 3,
+            "courier_id": 13,
             "courier_type": "bike",
             "regions": [145, 197, 17],
             "working_hours": ["09:11-12:56"]
         },
         {
-            "courier_id": 4,
+            "courier_id": 45,
             "courier_type": "car",
             "regions": [],
             "working_hours": []
