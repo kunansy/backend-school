@@ -122,7 +122,7 @@ async def add_couriers(request: Request) -> response.HTTPResponse:
 @doc.response(400, None, description="Courier not found or wrong field given")
 async def update_courier(request: Request,
                          courier_id: int) -> response.HTTPResponse:
-    courier: CourierModel = await db_api.get_courier(courier_id)
+    courier: CourierModel = await app.db.get_courier(courier_id)
 
     if courier is None:
         error_logger.error(f"Courier ({courier_id}) not found")
