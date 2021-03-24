@@ -164,7 +164,15 @@ async def update_courier(request: Request,
 @doc.response(400, None, description="Courier not found")
 async def get_courier(request: Request,
                       courier_id: int) -> response.HTTPResponse:
-    pass
+    courier = await app.db.get_courier(courier_id)
+    if not courier:
+        error_logger.warning(f"Courier {courier_id=} not found")
+        return response.HTTPResponse(status=400)
+
+    # TODO: min, group by region
+    # completed_orders = await app.db.get_completed_orders(courier.courier_id)
+
+    return response.json(courier.json(), indent=4)
 
 
 @app.post('/orders')
