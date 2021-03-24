@@ -1,5 +1,4 @@
 #!/usr/bin/env python3
-import asyncio
 import logging
 import os
 import sys
@@ -12,7 +11,7 @@ from sanic.exceptions import ServerError, abort
 from sanic.log import error_logger
 from sanic.request import Request
 from sanic_openapi import swagger_blueprint, doc
-from uvloop.loop import Loop
+
 
 sys.path += [
     os.path.abspath('..'),
@@ -34,13 +33,10 @@ PATCHABLE_FIELDS = [
 
 def is_json_patching_courier_valid(json_dict: dict) -> List[str]:
     """
-    Check whether the request to patch a courier valid,
-    means there are only particular fields and nothing else.
+    Check whether the request to patch a courier valid
 
-    :param json_dict: json to validate.
     :return: list of invalid fields if there are.
     """
-    # TODO: make copy or not?
     for field in PATCHABLE_FIELDS:
         json_dict.pop(field)
 
@@ -64,21 +60,19 @@ app.config.update({
 
 
 @app.listener('after_server_start')
-async def create_db_connection(app: Sanic,
-                               loop: Loop) -> None:
+async def create_db_connection(app: Sanic, loop) -> None:
     await app.db.connect()
 
 
 @app.listener('after_server_stop')
-async def close_db_connection(app: Sanic,
-                              loop: Loop) -> None:
+async def close_db_connection(app: Sanic, loop) -> None:
     await app.db.close()
 
 
 @app.post('/couriers')
 @doc.tag("Add couriers")
 @doc.summary("Add some couriers to the service")
-@doc.consumes([CourierModel.schema()], location="body",
+@doc.consumes(doc.JsonBody({"data": [CourierModel.schema()]}), location="body",
               required=True, content_type="application/json")
 @doc.response(201, {"couriers": [{"id": int}]},
               description="Couriers added")
@@ -176,7 +170,8 @@ async def get_courier(request: Request,
 @app.post('/orders')
 @doc.tag("Add orders")
 @doc.summary("Add some orders")
-@doc.consumes([OrderModel.schema()], location="body", required=True)
+@doc.consumes(doc.JsonBody({"data": [OrderModel.schema()]}),
+              location="body", required=True)
 @doc.response(201, {"orders": [{"id": int}]},
               description="Orders added")
 @doc.response(400, {"validation_error": {"orders": [{"id": int}]}},
