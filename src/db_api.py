@@ -322,10 +322,10 @@ class Database:
             logger.debug("Courier not found")
             return
 
-    async def _last_orders(self,
-                           courier_id: int) -> [_Order]:
-        """ Get last uncompleted orders """
-        last_orders_ids_query = f"""
+    async def _get_uncompleted_orders(self,
+                                      courier_id: int) -> [_Order]:
+        """ Get all uncompleted orders """
+        get_uncompleted_orders_ids = f"""
         SELECT 
             order_id 
         FROM 
@@ -334,13 +334,23 @@ class Database:
             courier_id = {courier_id} AND completed_time IS NULL
         ;
         """
-        last_orders_ids = await self.get(last_orders_ids_query)
+        logger.debug("Getting uncompleted orders")
+        uncompleted_orders_ids = await self.get(get_uncompleted_orders_ids)
 
-        last_orders_condition = f"""
+        if not uncompleted_orders_ids:
+            logger.debug("Uncompleted orders not found")
+            return []
+
+        uncompleted_orders_ids = ', '.join(
+            str(record.get('order_id'))
+            for record in uncompleted_orders_ids
+        )
+
+        uncompleted_orders_condition = f"""
         WHERE 
-            courier_id IN ({', '.join(last_orders_ids)})
+            order_id IN ({uncompleted_orders_ids})
         """
-        return await self.get_orders(last_orders_condition)
+        return await self.get_orders(uncompleted_orders_condition)
 
     async def _get_free_orders(self) -> List[_Order]:
         pass
