@@ -151,6 +151,7 @@ class Database:
                 logger.info("Migration started")
                 await Database._drop_tables(TABLES, conn)
                 await Database._create_tables(COMMANDS['create'], conn)
+                await Database._fill_tables(conn)
 
     @staticmethod
     async def _drop_tables(tables: Iterable[str],
@@ -171,6 +172,22 @@ class Database:
         for table, command in commands.items():
             await conn.execute(command)
             logger.info(f"'{table}' created")
+
+    @staticmethod
+    async def _fill_tables(conn: asyncpg.Connection) -> None:
+        logger.debug("Filling courier_types table")
+
+        values = "('foot', 2, 10), ('bike', 5, 15), ('car', 9, 50)"
+        query = f"""
+        INSERT INTO
+            courier_types (type, c, payload)
+        VALUES
+            {values}
+        ;
+        """
+
+        await conn.execute_t(query)
+        logger.info("Courier_types filled")
 
     async def _get(self,
                    query: str,
