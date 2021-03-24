@@ -405,9 +405,7 @@ class Database:
 
     async def update_courier(self,
                              **data):
-        courier_id = data.pop('id')
-
-        last_orders = await self._last_orders(courier_id)
+        courier_id = data.pop('courier_id')
 
         values, is_first = "", True
         for field, value in data.items():
@@ -415,9 +413,13 @@ class Database:
                 values += ', '
 
             if field in ['regions', 'working_hours']:
-                values += f"{field} = ARRAY[{', '.join(value)}]"
+                type_ = 'INTEGER' if field == 'regions' else 'VARCHAR'
+                values += f"{field} = ARRAY{value}::{type_}[]"
             elif field == 'courier_type':
-                values += f"(SELECT t.id FROM courier_types t WHERE t.type = {value})"
+                values += f"""
+                courier_type = 
+                    (SELECT t.id FROM courier_types t WHERE t.type = '{value}')
+                """
 
             is_first = False
 
@@ -427,7 +429,7 @@ class Database:
         SET 
             {values}
         WHERE 
-            courier_id = {courier_id}
+            courier_id = {courier_id}::integer
         RETURNING
             courier_id, 
             (SELECT t.type FROM courier_types t WHERE t.id = courier_type),
@@ -437,12 +439,16 @@ class Database:
             (SELECT t.payload FROM courier_types t WHERE t.id = courier_type)
         ;
         """
-        updated_courier = await self.execute_t(update_query)
-        courier = _Courier(updated_courier)
+        logger.debug(f"Updating courier {courier_id=}")
+        updated_courier = await self.get_t(update_query)
+        logger.debug(f"Courier updated")
+        courier = _Courier(updated_courier[0])
+
+        uncompleted_orders = await self._get_uncompleted_orders(courier_id)
 
         orders_to_cancel = [
             order
-            for order in last_orders
+            for order in uncompleted_orders
             if not courier.is_order_valid(order)
         ]
 
