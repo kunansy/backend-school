@@ -9,6 +9,8 @@ from sanic.log import logger, error_logger
 from src.db_commands import COMMANDS, TABLES
 
 
+DATE_FORMAT = "%Y-%m-%dT%H:%M:%S.%fZ"
+
 env = Env()
 env.read_env()
 
@@ -138,6 +140,14 @@ def async_cache(func: Callable) -> Callable:
         return results
 
     return wrapped
+
+
+def now() -> str:
+    return datetime.now().strftime(DATE_FORMAT)
+
+
+def parse_date(date_str: str) -> datetime:
+    return datetime.strptime(date_str, DATE_FORMAT)
 
 
 class Database:
