@@ -182,7 +182,7 @@ async def add_orders(request: Request) -> response.HTTPResponse:
         try:
             order = OrderModel(**order)
         except ValidationError as e:
-            invalid_orders_id += [order.get('id', -1)]
+            invalid_orders_id += [order.get('order_id', -1)]
             error_logger.error(e.json(indent=4))
         else:
             orders += [order]
@@ -191,13 +191,13 @@ async def add_orders(request: Request) -> response.HTTPResponse:
         error_logger.error("Request rejected, it contains invalid "
                            f"orders ({len(invalid_orders_id)})")
         context = validation_error('orders', invalid_orders_id)
-        abort(400, context)
+        return response.json(context, status=400)
 
     await app.db.add_orders(orders)
 
     added_orders = {
         "orders": [
-            order.dict(include={'id'})
+            {"id": order.order_id}
             for order in orders
         ]
     }
