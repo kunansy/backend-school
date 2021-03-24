@@ -37,8 +37,9 @@ def is_json_patching_courier_valid(json_dict: dict) -> List[str]:
 
     :return: list of invalid fields if there are.
     """
+    json_dict = json_dict.copy()
     for field in PATCHABLE_FIELDS:
-        json_dict.pop(field)
+        json_dict.pop(field, None)
 
     return list(json_dict.keys())
 
