@@ -300,13 +300,14 @@ class Database:
 
     async def _last_orders(self,
                            courier_id: int) -> [_Order]:
+        """ Get last uncompleted orders """
         last_orders_ids_query = f"""
         SELECT 
             order_id 
         FROM 
             status 
         WHERE 
-            courier_id = {courier_id}
+            courier_id = {courier_id} AND completed_time IS NULL
         ;
         """
         last_orders_ids = await self.get(last_orders_ids_query)
