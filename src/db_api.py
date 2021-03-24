@@ -160,7 +160,7 @@ class Database:
 
         for table in tables:
             await conn.execute(
-                f"DROP TABLE IF EXISTS {table};"
+                f"DROP TABLE IF EXISTS {table} CASCADE;"
             )
             logger.info(f"'{table}' dropped")
 
