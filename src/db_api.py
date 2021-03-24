@@ -197,7 +197,7 @@ class Database:
 
     async def _get(self,
                    query: str,
-                   conn: asyncpg.Connection):
+                   conn: asyncpg.Connection) -> List[asyncpg.Record]:
         try:
             logger.debug(f"Requested to the database:\n{query}")
             result = await conn.fetch(query)
@@ -208,13 +208,13 @@ class Database:
         return result
 
     async def get(self,
-                  query: str):
+                  query: str) -> List[asyncpg.Record]:
         """ Fetch query without transaction """
         async with self._pool.acquire() as conn:
             return await self._get(query, conn)
 
     async def get_t(self,
-                    query: str):
+                    query: str) -> List[asyncpg.Record]:
         """ Fetch query with transaction """
         async with self._pool.acquire() as conn:
             async with conn.transaction():
@@ -222,7 +222,7 @@ class Database:
 
     async def _execute(self,
                        query: str,
-                       conn: asyncpg.Connection):
+                       conn: asyncpg.Connection) -> str:
         try:
             logger.debug(f"Requested to the database:\n{query}")
             result = await conn.execute(query)
@@ -233,13 +233,13 @@ class Database:
         return result
 
     async def execute(self,
-                      query: str):
+                      query: str) -> str:
         """ Execute the query without transaction """
         async with self._pool.acquire() as conn:
             return await self._execute(query, conn)
 
     async def execute_t(self,
-                        query: str):
+                        query: str) -> str:
         """ Execute the query with transaction """
         async with self._pool.acquire() as conn:
             async with conn.transaction():
