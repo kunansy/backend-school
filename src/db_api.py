@@ -261,10 +261,10 @@ class Database:
             return
 
         values = ', '.join(
-            f"({courier.courier_id}, "
-            f"(SELECT t.id FROM courier_type t WHERE t.type = {courier.courier_type}), "
-            f"ARRAY{courier.regions}, "
-            f"ARRAY{courier.working_hours}"
+            f"({courier.courier_id}::integer, "
+            f"(SELECT t.id FROM courier_types t WHERE t.type = '{courier.courier_type}'), "
+            f"ARRAY{courier.regions}::integer[], "
+            f"ARRAY{courier.working_hours}::varchar[]"
             ")"
             for courier in couriers
         )
