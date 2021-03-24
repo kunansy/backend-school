@@ -160,7 +160,7 @@ class Database:
 
         for table in tables:
             await conn.execute(
-                f"DROP TABLE {table};"
+                f"DROP TABLE IF EXISTS {table};"
             )
             logger.info(f"'{table}' dropped")
 
@@ -186,7 +186,7 @@ class Database:
         ;
         """
 
-        await conn.execute_t(query)
+        await conn.execute(query)
         logger.info("Courier_types filled")
 
     async def _get(self,
@@ -384,7 +384,7 @@ class Database:
             f"({order.order_id}, "
             f"{order.weight}, "
             f"{order.region}, "
-            f"{order.delivery_hours}"
+            f"ARRAY[{', '.join(order.delivery_hours)}]"
             f")"
             for order in orders
         )
