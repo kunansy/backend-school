@@ -195,12 +195,13 @@ class Database:
     async def _fill_tables(conn: asyncpg.Connection) -> None:
         logger.debug("Filling courier_types table")
 
-        values = "('foot', 2, 10), ('bike', 5, 15), ('car', 9, 50)"
         query = f"""
         INSERT INTO
             courier_types (type, c, payload)
         VALUES
-            {values}
+            ('foot', 2, 10), 
+            ('bike', 5, 15), 
+            ('car', 9, 50)
         ;
         """
 
@@ -279,11 +280,12 @@ class Database:
             return
 
         values = ', '.join(
-            f"({courier.courier_id}::integer, "
-            f"(SELECT t.id FROM courier_types t WHERE t.type = '{courier.courier_type}'), "
-            f"ARRAY{courier.regions}::integer[], "
-            f"ARRAY{courier.working_hours}::varchar[]"
-            ")"
+            f"""(
+            {courier.courier_id}::INTEGER,
+            (SELECT t.id FROM courier_types t WHERE t.type = '{courier.courier_type}'),
+            ARRAY{courier.regions}::INTEGER[],
+            ARRAY{courier.working_hours}::VARCHAR[])
+            """
             for courier in couriers
         )
 
@@ -345,6 +347,10 @@ class Database:
 
     async def cancel_orders(self,
                             orders_to_cancel: List[_Order]) -> None:
+        if not orders_to_cancel:
+            return
+        logger.debug(f"Cancelling {len(orders_to_cancel)} orders")
+
         orders_ids = ', '.join(
             f"{order.order_id}"
             for order in orders_to_cancel
