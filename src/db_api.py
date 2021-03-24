@@ -294,7 +294,9 @@ class Database:
             {values}
         ;
         """
+        logger.debug(f"Adding {len(couriers)} couriers")
         await self.execute_t(query)
+        logger.debug("Couriers added")
 
     async def get_courier(self,
                           courier_id: int) -> _Courier or None:
@@ -310,10 +312,12 @@ class Database:
             c.courier_id = {courier_id}::integer
         ;
         """
+        logger.debug(f"Getting courier {courier_id=}")
         result = await self.get(query)
         try:
             return _Courier(result[0])
         except IndexError:
+            logger.debug("Courier not found")
             return
 
     async def _last_orders(self,
@@ -353,6 +357,7 @@ class Database:
         ;
         """
         await self.execute_t(query)
+        logger.debug("Orders cancelled")
 
     async def update_courier(self,
                              **data):
