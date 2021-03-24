@@ -68,7 +68,7 @@ class _Courier:
     def __init__(self,
                  courier: asyncpg.Record) -> None:
         self.courier_id = int(courier.get('courier_id'))
-        self.courier_type = courier.get('courier_type')
+        self.courier_type = courier.get('type')
         self.regions = [
             int(region)
             for region in courier.get('regions')
