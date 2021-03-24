@@ -196,7 +196,7 @@ class Database:
             logger.debug(f"Requested to the database:\n{query}")
             result = await conn.fetch(query)
         except Exception:
-            error_logger.exception()
+            error_logger.exception('')
             raise
         logger.debug("Request successfully completed")
         return result
@@ -221,7 +221,7 @@ class Database:
             logger.debug(f"Requested to the database:\n{query}")
             result = await conn.execute(query)
         except Exception:
-            error_logger.exception()
+            error_logger.exception('')
             raise
         logger.debug("Request successfully completed")
         return result
