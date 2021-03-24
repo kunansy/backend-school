@@ -217,7 +217,7 @@ async def assign(request: Request) -> response.HTTPResponse:
 
     if (courier := await app.db.get_courier(courier_id)) is None:
         error_logger.error(f"Courier with {courier_id=} not found")
-        abort(400)
+        return response.HTTPResponse(status=400)
 
     assigned_orders = await app.db.assign_orders(courier)
     return response.json(assigned_orders)
@@ -235,25 +235,25 @@ async def complete(request: Request) -> response.HTTPResponse:
         complete = CompleteModel(**request.json)
     except ValidationError as e:
         error_logger.error(f"Invalid complete request\n{e.json(indent=4)}")
-        abort(400)
+        return response.HTTPResponse(status=400)
 
     if (courier := await app.db.get_courier(complete.courier_id)) is None:
         error_logger.error(f"Courier with {complete.courier_id} not found")
-        abort(400)
+        return response.HTTPResponse(status=400)
     if (order := await app.db.get_order(complete.order_id)) is None:
         error_logger.error(f"Order with {complete.order_id} not found")
-        abort(400)
+        return response.HTTPResponse(status=400)
 
     if (assign_info := await app.db.status(order.order_id)) is None:
         error_logger.error(f"Order {order.order_id} was not assigned")
-        abort(400)
+        return response.HTTPResponse(status=400)
 
     if (assigned_courier := assign_info.courier.courier_id) != courier.courier_id:
         error_logger.error(
             f"{order.order_id=} assigned to {assigned_courier.courier_id} "
             f"courier, but {courier.courier_id} found"
         )
-        abort(400)
+        return response.HTTPResponse(status=400)
 
     await app.db.complete_order(complete)
 
