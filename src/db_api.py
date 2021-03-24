@@ -490,8 +490,39 @@ class Database:
         await self.execute_t(query)
 
     async def assign_orders(self,
-                            courier_id: int) -> list:
-        pass
+                            courier_id: int) -> None:
+        courier = await self.get_courier(courier_id)
+        free_orders = await self._get_free_orders()
+
+        if not free_orders:
+            return
+
+        valid_orders = [
+            order
+            for order in free_orders
+            if courier.is_order_valid(order)
+        ]
+
+        now_ = now()
+
+        values = ', '.join(
+            f"""(
+            {courier_id}::INTEGER,
+            {order.order_id}::INTEGER,
+            {now_}::VARCHAR)
+            """
+            for order in valid_orders
+        )
+
+        query = f"""
+        INSERT INTO
+            status (courier_id, order_id, assigned_time)
+        VALUES
+            {values}
+        ;
+        """
+
+        await self.execute_t(query)
 
     async def status(self,
                      order_id: int):
