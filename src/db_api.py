@@ -287,9 +287,9 @@ class Database:
         FROM 
             couriers c
         INNER JOIN 
-            courier_types t ON c.courier_type = t.id;
+            courier_types t ON c.courier_type = t.id
         WHERE 
-            c.courier_id = {courier_id}
+            c.courier_id = {courier_id}::integer
         ;
         """
         result = await self.get(query)
