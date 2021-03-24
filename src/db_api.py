@@ -260,11 +260,11 @@ class Database:
         if not couriers:
             return
 
-        couriers = ', '.join(
+        values = ', '.join(
             f"({courier.courier_id}, "
             f"(SELECT t.id FROM courier_type t WHERE t.type = {courier.courier_type}), "
-            f"'{{{', '.join(courier.regions)}}}', "
-            f"'{{{', '.join(courier.working_hours)}}}'"
+            f"ARRAY{courier.regions}, "
+            f"ARRAY{courier.working_hours}"
             ")"
             for courier in couriers
         )
@@ -273,7 +273,7 @@ class Database:
         INSERT INTO
             couriers
         VALUES
-            {couriers}
+            {values}
         ;
         """
         await self.execute_t(query)
