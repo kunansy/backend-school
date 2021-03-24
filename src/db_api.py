@@ -404,11 +404,12 @@ class Database:
     async def add_orders(self,
                          orders: list) -> None:
         orders = ', '.join(
-            f"({order.order_id}, "
-            f"{order.weight}, "
-            f"{order.region}, "
-            f"ARRAY[{', '.join(order.delivery_hours)}]"
-            f")"
+            f"""(
+            {order.order_id}::integer,
+            {order.weight}::real,
+            {order.region}::integer,
+            ARRAY{order.delivery_hours}::varchar[]
+            )"""
             for order in orders
         )
 
