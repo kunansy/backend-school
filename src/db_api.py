@@ -342,20 +342,32 @@ class Database:
 
         last_orders = await self._last_orders(courier_id)
 
-        # TODO: work with regions and hours
-        values_to_set = ', '.join(
-            f"{field} = {value}"
-            for field, value in data.items()
-        )
+        values, is_first = "", True
+        for field, value in data.items():
+            if not is_first:
+                values += ', '
+
+            if field in ['regions', 'working_hours']:
+                values += f"{field} = ARRAY[{', '.join(value)}]"
+            elif field == 'courier_type':
+                values += f"(SELECT t.id FROM courier_types t WHERE t.type = {value})"
+
+            is_first = False
+
         update_query = f"""
         UPDATE 
             couriers 
         SET 
-            {values_to_set}
+            {values}
         WHERE 
             courier_id = {courier_id}
         RETURNING
-            couriers.*
+            courier_id, 
+            (SELECT t.type FROM courier_type t WHERE t.id = courier_type),
+            regions,
+            working_hours,
+            (SELECT t.c FROM courier_type t WHERE t.id = courier_type),
+            (SELECT t.payload FROM courier_type t WHERE t.id = courier_type)
         ;
         """
         updated_courier = await self.execute_t(update_query)
