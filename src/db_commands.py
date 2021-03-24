@@ -33,7 +33,7 @@ CREATE TABLE status (
     courier_id INTEGER REFERENCES couriers (courier_id) NOT NULL,
     order_id INTEGER REFERENCES orders (order_id) NOT NULL,
     assigned_time TIME,
-    completed_time DEFAULT NULL
+    completed_time TIME
 );
 """
 
@@ -46,8 +46,8 @@ TABLES = {
 
 COMMANDS = {
     "create": {
-        "courier": CREATE_COURIER_TABLE,
         "courier_type": CREATE_COURIER_TYPE_TABLE,
+        "courier": CREATE_COURIER_TABLE,
         "order": CREATE_ORDER_TABLE,
         "status": CREATE_STATUS_TABLE
     },
