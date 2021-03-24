@@ -80,6 +80,12 @@ class _Courier:
         self.coeff = int(courier.get('c'))
         self.payload = int(courier.get('payload'))
 
+    def json(self) -> dict:
+        return {
+            field: str(value)
+            for field, value in self.__dict__.items()
+        }
+
     def is_order_valid(self, order) -> bool:
         is_time_intercept = any(
             w_time | d_time
