@@ -86,6 +86,18 @@ class _Courier:
             for field, value in self.__dict__.items()
         }
 
+    def external(self) -> dict:
+        working_hours = [
+            str(h)
+            for h in self.working_hours
+        ]
+        return {
+            "courier_id": self.courier_id,
+            "courier_type": self.courier_type,
+            "regions": self.regions,
+            "working_hours": working_hours
+        }
+
     def is_order_valid(self, order) -> bool:
         is_time_intercept = any(
             w_time | d_time
