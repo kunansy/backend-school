@@ -285,9 +285,9 @@ class Database:
             c.courier_id, t.type, c.regions, 
             c.working_hours, t.c, t.payload
         FROM 
-            courier c
+            couriers c
         INNER JOIN 
-            courier_type t ON c.courier_type = t.id;
+            courier_types t ON c.courier_type = t.id;
         WHERE 
             c.courier_id = {courier_id}
         ;
@@ -363,11 +363,11 @@ class Database:
             courier_id = {courier_id}
         RETURNING
             courier_id, 
-            (SELECT t.type FROM courier_type t WHERE t.id = courier_type),
+            (SELECT t.type FROM courier_types t WHERE t.id = courier_type),
             regions,
             working_hours,
-            (SELECT t.c FROM courier_type t WHERE t.id = courier_type),
-            (SELECT t.payload FROM courier_type t WHERE t.id = courier_type)
+            (SELECT t.c FROM courier_types t WHERE t.id = courier_type),
+            (SELECT t.payload FROM courier_types t WHERE t.id = courier_type)
         ;
         """
         updated_courier = await self.execute_t(update_query)
