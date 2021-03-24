@@ -263,7 +263,6 @@ async def complete(request: Request) -> response.HTTPResponse:
 @app.get('/')
 @doc.exclude(True)
 async def home(request: Request) -> response.HTTPResponse:
-    await asyncio.sleep(1)
     return response.json({"ok": True})
 
 
@@ -285,7 +284,7 @@ async def error_handler(request: Request,
             "json": error_json
         }
     }
-    return response.json(context, indent=4)
+    return response.json(context, indent=4, status=500)
 
 
 if __name__ == "__main__":
