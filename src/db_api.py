@@ -353,7 +353,25 @@ class Database:
         return await self.get_orders(uncompleted_orders_condition)
 
     async def _get_free_orders(self) -> List[_Order]:
-        pass
+        query = f"""
+        SELECT
+            o.*
+        FROM 
+            status s
+        RIGHT JOIN
+            orders o
+        ON
+            s.order_id = o.order_id
+        WHERE
+            s.order_id IS NULL
+        ;
+        """
+        free_orders = await self.get(query)
+
+        return [
+            _Order(order)
+            for order in free_orders
+        ]
 
     async def cancel_orders(self,
                             orders_to_cancel: List[_Order]) -> None:
