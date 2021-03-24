@@ -322,9 +322,19 @@ class Database:
         pass
 
     async def cancel_orders(self,
-                            courier_id: int,
                             orders_to_cancel: List[_Order]) -> None:
-        pass
+        orders_ids = ', '.join(
+            f"{order.order_id}"
+            for order in orders_to_cancel
+        )
+        query = f"""
+        DELETE FROM 
+            status
+        WHERE 
+            order_id IN ({orders_ids})
+        ;
+        """
+        await self.execute_t(query)
 
     async def update_courier(self,
                              **data):
@@ -357,7 +367,7 @@ class Database:
             if not courier.is_order_valid(order)
         ]
 
-        await self.cancel_orders(courier_id, orders_to_cancel)
+        await self.cancel_orders(orders_to_cancel)
 
         return updated_courier
 
