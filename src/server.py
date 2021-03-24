@@ -119,26 +119,18 @@ async def add_couriers(request: Request) -> response.HTTPResponse:
 @doc.response(400, None, description="Courier not found or wrong field given")
 async def update_courier(request: Request,
                          courier_id: int) -> response.HTTPResponse:
+    if invalid_fields := is_json_patching_courier_valid(request.json):
+        error_logger.error(f"Only {PATCHABLE_FIELDS} might be "
+                           f"updated, but {invalid_fields} found")
+        return response.HTTPResponse(status=400)
+
     courier = await app.db.get_courier(courier_id)
 
     if not courier:
         error_logger.error(f"Courier ({courier_id}) not found")
         return response.HTTPResponse(status=400)
 
-    courier = CourierModel(
-        courier_id=courier.courier_id,
-        courier_type=courier.courier_type,
-        regions=courier.regions,
-        working_hours=[
-            str(w_hours)
-            for w_hours in courier.working_hours
-        ]
-    )
-
-    if invalid_fields := is_json_patching_courier_valid(request.json):
-        error_logger.error(f"Only {PATCHABLE_FIELDS} might be "
-                           f"updated, but {invalid_fields} found")
-        return response.HTTPResponse(status=400)
+    courier = CourierModel(**courier.external())
 
     try:
         courier_data = {**courier.dict(), **request.json}
