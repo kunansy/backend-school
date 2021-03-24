@@ -141,11 +141,11 @@ async def update_courier(request: Request,
         return response.HTTPResponse(status=400)
 
     await app.db.update_courier(
-        id=courier.courier_id,
+        courier_id=courier.courier_id,
         **request.json
     )
 
-    return response.json(updated_courier.json())
+    return response.json(updated_courier.dict(), indent=4)
 
 
 @app.get('/couriers/<courier_id:int>')
