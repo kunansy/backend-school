@@ -64,6 +64,9 @@ app.config.update({
 async def create_db_connection(app: Sanic, loop) -> None:
     await app.db.connect()
 
+    if env.bool('migrate', False):
+        await app.db.migrate()
+
 
 @app.listener('after_server_stop')
 async def close_db_connection(app: Sanic, loop) -> None:
