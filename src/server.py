@@ -162,15 +162,31 @@ async def update_courier(request: Request,
 @doc.response(400, None, description="Courier not found")
 async def get_courier(request: Request,
                       courier_id: int) -> response.HTTPResponse:
-    courier = await app.db.get_courier(courier_id)
-    if not courier:
+    courier_status = await app.db.courier_status(courier_id)
+    if not courier_status:
         error_logger.warning("Courier id=%s not found", courier_id)
         return response.HTTPResponse(status=400)
+
+    # TODO: move it to thread_pool_executor
+    completed_orders_ids = {
+        status.order_id
+        for status in courier_status.statuses
+        if status.completed_time is not None
+    }
+    if not completed_orders_ids:
+        return response.HTTPResponse({"orders": []})
+
+    completed_orders = [
+        order
+        for order in courier_status.orders
+        if order.order_id in completed_orders_ids
+    ]
+    completed_orders.sort(key=lambda order: order.completed_time)
 
     # TODO: min, group by region
     # completed_orders = await app.db.get_completed_orders(courier.courier_id)
 
-    return response.json(courier.json_dict(), indent=4)
+    return response.json(courier_status.__dict__, indent=4)
 
 
 @app.post('/orders')
