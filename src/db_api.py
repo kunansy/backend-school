@@ -394,14 +394,16 @@ class Database:
 
     async def _get_uncompleted_orders(self,
                                       courier_id: int) -> [_Order]:
-        """ Get all uncompleted orders """
+        """ Get all assigned but uncompleted orders """
         get_uncompleted_orders_ids = f"""
         SELECT 
             order_id 
         FROM 
             status 
         WHERE 
-            courier_id = {courier_id} AND completed_time IS NULL
+            courier_id = {courier_id} AND 
+            completed_time IS NULL AND 
+            assigned_time IS NOT NULL
         ;
         """
         logger.debug("Getting uncompleted orders")
