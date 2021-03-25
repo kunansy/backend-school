@@ -171,7 +171,7 @@ class _Status:
 
 
 @dataclass
-class OrderStatus:
+class CourierStatus:
     orders: List[_Order]
     statuses: List[_Status]
     courier: _Courier
@@ -613,17 +613,17 @@ class Database:
         return valid_orders
 
     async def courier_status(self,
-                             courier_id: int) -> Optional[OrderStatus]:
+                             courier_id: int) -> Optional[CourierStatus]:
         orders_and_statuses = await self._status(courier_id=courier_id)
         if not orders_and_statuses:
             return
 
         courier = await self.get_courier(courier_id)
 
-        return OrderStatus(orders_and_statuses, courier)
+        return CourierStatus(orders_and_statuses, courier)
 
     async def order_status(self,
-                           order_id: int) -> Optional[OrderStatus]:
+                           order_id: int) -> Optional[CourierStatus]:
         orders_and_statuses = await self._status(order_id=order_id)
         if not orders_and_statuses:
             return
@@ -631,7 +631,7 @@ class Database:
         courier_id = int(orders_and_statuses[0].get('courier_id'))
         courier = await self.get_courier(courier_id)
 
-        return OrderStatus(orders_and_statuses, courier)
+        return CourierStatus(orders_and_statuses, courier)
 
     async def _status(self,
                       *,
