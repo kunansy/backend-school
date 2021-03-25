@@ -623,6 +623,34 @@ class Database:
 
         return CourierStatus(orders_and_statuses, courier)
 
+    async def order_status(self,
+                           order_id: int) -> Optional[CourierStatus]:
+        query = f"""
+        SELECT
+            o.order_id, o.weight, 
+            o.region, o.delivery_hours,
+            s.id, s.courier_id, s.order_id,
+            s.assigned_time, s.completed_time
+        FROM
+            status s
+        INNER JOIN
+            orders o
+        ON
+            s.order_id = o.order_id
+        WHERE
+            s.order_id = {order_id}::INTEGER
+        ;
+        """
+        orders_and_statuses = await self.get(query)
+        if not orders_and_statuses:
+            return
+
+        courier_id = int(orders_and_statuses[0].get('courier_id'))
+
+        courier = await self.get_courier(courier_id)
+
+        return CourierStatus(orders_and_statuses, courier)
+
     async def status(self,
                      order_id: int):
         pass
