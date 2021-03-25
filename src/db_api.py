@@ -599,23 +599,7 @@ class Database:
 
     async def courier_status(self,
                              courier_id: int) -> Optional[CourierStatus]:
-        query = f"""
-        SELECT
-            o.order_id, o.weight, 
-            o.region, o.delivery_hours,
-            s.id, s.courier_id, s.order_id,
-            s.assigned_time, s.completed_time
-        FROM
-            status s
-        INNER JOIN
-            orders o
-        ON
-            s.order_id = o.order_id
-        WHERE
-            s.courier_id = {courier_id}::INTEGER
-        ;
-        """
-        orders_and_statuses = await self.get(query)
+        orders_and_statuses = await self._status(courier_id=courier_id)
         if not orders_and_statuses:
             return
 
@@ -625,6 +609,32 @@ class Database:
 
     async def order_status(self,
                            order_id: int) -> Optional[CourierStatus]:
+        orders_and_statuses = await self._status(order_id=order_id)
+        if not orders_and_statuses:
+            return
+
+        courier_id = int(orders_and_statuses[0].get('courier_id'))
+        courier = await self.get_courier(courier_id)
+
+        return CourierStatus(orders_and_statuses, courier)
+
+    async def _status(self,
+                      *,
+                      order_id: int = None,
+                      courier_id: int = None) -> Optional[List[asyncpg.Record]]:
+        if not (order_id or courier_id):
+            return
+
+        if courier_id:
+            courier_id = f"s.courier_id = {courier_id}::INTEGER"
+        if order_id:
+            order_id = f"s.order_id = {order_id}::INTEGER"
+
+        if courier_id and order_id:
+            condition = f"{courier_id} AND {order_id}"
+        else:
+            condition = courier_id or order_id
+
         query = f"""
         SELECT
             o.order_id, o.weight, 
@@ -638,22 +648,10 @@ class Database:
         ON
             s.order_id = o.order_id
         WHERE
-            s.order_id = {order_id}::INTEGER
+            {condition}
         ;
         """
-        orders_and_statuses = await self.get(query)
-        if not orders_and_statuses:
-            return
-
-        courier_id = int(orders_and_statuses[0].get('courier_id'))
-
-        courier = await self.get_courier(courier_id)
-
-        return CourierStatus(orders_and_statuses, courier)
-
-    async def status(self,
-                     order_id: int):
-        pass
+        return await self.get(query)
 
     async def complete_order(self,
                              complete) -> None:
