@@ -528,18 +528,21 @@ class Database:
         await self.execute_t(query)
 
     async def assign_orders(self,
-                            courier_id: int) -> None:
+                            courier_id: int) -> List[_Order]:
         courier = await self.get_courier(courier_id)
         free_orders = await self._get_free_orders()
 
         if not free_orders:
-            return
+            return []
 
         valid_orders = [
             order
             for order in free_orders
             if courier.is_order_valid(order)
         ]
+
+        if not valid_orders:
+            return []
 
         now_ = now()
 
@@ -561,6 +564,8 @@ class Database:
         """
 
         await self.execute_t(query)
+
+        return valid_orders
 
     async def status(self,
                      order_id: int):
