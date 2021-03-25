@@ -217,17 +217,18 @@ class Database:
     async def connect(self) -> None:
         if self._pool:
             return
-
+        logger.info("Connecting to the database")
         self._pool: asyncpg.Pool = await asyncpg.create_pool(
             dsn=env('DB_DSN'),
             command_timeout=60,
             max_size=20
         )
-        logger.debug("Connection pool created")
+        logger.info("Connection pool created")
 
     async def close(self) -> None:
+        logger.info("Closing connection to the database")
         await self._pool.close()
-        logger.debug("connection pool closed")
+        logger.info("Connection pool closed")
 
     async def migrate(self) -> None:
         """
@@ -244,26 +245,26 @@ class Database:
     @staticmethod
     async def _drop_tables(tables: Iterable[str],
                            conn: asyncpg.Connection) -> None:
-        logger.debug("Dropping tables...")
+        logger.info("Dropping tables")
 
         for table in tables:
             await conn.execute(
                 f"DROP TABLE IF EXISTS {table} CASCADE;"
             )
-            logger.info(f"'{table}' dropped")
+            logger.info("'%s' dropped", table)
 
     @staticmethod
     async def _create_tables(commands: Dict[str, str],
                              conn: asyncpg.Connection) -> None:
-        logger.debug("Create tables...")
+        logger.info("Create tables")
 
         for table, command in commands.items():
             await conn.execute(command)
-            logger.info(f"'{table}' created")
+            logger.info("'%s' created", table)
 
     @staticmethod
     async def _fill_tables(conn: asyncpg.Connection) -> None:
-        logger.debug("Filling courier_types table")
+        logger.info("Filling courier_types table")
 
         query = f"""
         INSERT INTO
@@ -282,12 +283,12 @@ class Database:
                    query: str,
                    conn: asyncpg.Connection) -> List[asyncpg.Record]:
         try:
-            logger.debug(f"Requested to the database:\n{query}")
+            logger.info("Requested to the database:\n %s", query)
             result = await conn.fetch(query)
         except Exception:
             error_logger.exception('')
             raise
-        logger.debug("Request successfully completed")
+        logger.info("Request successfully completed")
         return result
 
     async def get(self,
@@ -307,12 +308,12 @@ class Database:
                        query: str,
                        conn: asyncpg.Connection) -> str:
         try:
-            logger.debug(f"Requested to the database:\n{query}")
+            logger.info("Requested to the database:\n %s", query)
             result = await conn.execute(query)
         except Exception:
             error_logger.exception('')
             raise
-        logger.debug("Request successfully completed")
+        logger.info("Request successfully completed")
         return result
 
     async def execute(self,
@@ -337,7 +338,9 @@ class Database:
             courier_types
         ;
         """
+        logger.info("Getting courier types")
         records = await self.get(query)
+        logger.info("Courier types got")
 
         return [
             record.get('type')
@@ -366,9 +369,9 @@ class Database:
             {values}
         ;
         """
-        logger.debug(f"Adding {len(couriers)} couriers")
+        logger.info("Adding %s couriers", len(couriers))
         await self.execute_t(query)
-        logger.debug("Couriers added")
+        logger.info("Couriers added")
 
     async def get_courier(self,
                           courier_id: int) -> _Courier or None:
@@ -384,12 +387,12 @@ class Database:
             c.courier_id = {courier_id}::integer
         ;
         """
-        logger.debug(f"Getting courier {courier_id=}")
+        logger.info("Getting courier id=%s", courier_id)
         result = await self.get(query)
         try:
             return _Courier(result[0])
         except IndexError:
-            logger.debug("Courier not found")
+            logger.info("Courier not found")
             return
 
     async def _get_uncompleted_orders(self,
@@ -406,12 +409,14 @@ class Database:
             assigned_time IS NOT NULL
         ;
         """
-        logger.debug("Getting uncompleted orders")
+        logger.info("Getting uncompleted orders")
         uncompleted_orders_ids = await self.get(get_uncompleted_orders_ids)
 
         if not uncompleted_orders_ids:
             logger.debug("Uncompleted orders not found")
             return []
+
+        logger.info("Found %s uncompleted orders", len(uncompleted_orders_ids))
 
         uncompleted_orders_ids = ', '.join(
             str(record.get('order_id'))
@@ -438,7 +443,9 @@ class Database:
             s.order_id IS NULL
         ;
         """
+        logger.info("Getting free orders")
         free_orders = await self.get(query)
+        logger.info("%s free orders found", len(free_orders))
 
         return [
             _Order(order)
@@ -449,7 +456,7 @@ class Database:
                             orders_to_cancel: List[_Order]) -> None:
         if not orders_to_cancel:
             return
-        logger.debug(f"Cancelling {len(orders_to_cancel)} orders")
+        logger.info("Cancelling %s orders", len(orders_to_cancel))
 
         orders_ids = ', '.join(
             f"{order.order_id}"
@@ -501,9 +508,10 @@ class Database:
             (SELECT t.payload FROM courier_types t WHERE t.id = courier_type)
         ;
         """
-        logger.debug(f"Updating courier {courier_id=}")
+        logger.info("Updating courier id=%s", courier_id)
         updated_courier = await self.get_t(update_query)
-        logger.debug(f"Courier updated")
+        logger.info("Courier updated")
+
         courier = _Courier(updated_courier[0])
 
         uncompleted_orders = await self._get_uncompleted_orders(courier_id)
@@ -529,7 +537,9 @@ class Database:
             {condition}
         ;
         """
+        logger.info("Getting orders by %s", condition)
         orders = await self.get(query)
+        logger("Found %s orders", len(orders))
 
         return [
             _Order(order)
@@ -555,7 +565,9 @@ class Database:
             {orders}
         ;
         """
+        logger.info("Adding %s orders", len(orders))
         await self.execute_t(query)
+        logger.info("Orders added")
 
     async def assign_orders(self,
                             courier_id: int) -> List[_Order]:
@@ -593,7 +605,10 @@ class Database:
         ;
         """
 
+        logger.info("Assigning %s orders to Courier id=%",
+                    len(valid_orders), courier_id)
         await self.execute_t(query)
+        logger.info("Orders assigned")
 
         return valid_orders
 
@@ -651,6 +666,7 @@ class Database:
             {condition}
         ;
         """
+        logger.info("Getting Courier info with his orders")
         return await self.get(query)
 
     async def complete_order(self,
