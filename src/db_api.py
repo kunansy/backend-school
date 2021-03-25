@@ -592,6 +592,29 @@ class Database:
 
         return valid_orders
 
+    async def courier_status(self,
+                             courier_id: int) -> CourierStatus:
+        query = f"""
+        SELECT
+            o.order_id, o.weight, 
+            o.region, o.delivery_hours,
+            s.id, s.courier_id, s.order_id,
+            s.assigned_time, s.completed_time
+        FROM
+            status s
+        INNER JOIN
+            orders o
+        ON
+            s.order_id = o.order_id
+        WHERE
+            s.courier_id = {courier_id}::INTEGER
+        ;
+        """
+        orders_and_statuses = await self.get(query)
+        courier = await self.get_courier(courier_id)
+
+        return CourierStatus(orders_and_statuses, courier)
+
     async def status(self,
                      order_id: int):
         pass
