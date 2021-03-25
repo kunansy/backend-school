@@ -598,7 +598,7 @@ class Database:
         return valid_orders
 
     async def courier_status(self,
-                             courier_id: int) -> CourierStatus:
+                             courier_id: int) -> Optional[CourierStatus]:
         query = f"""
         SELECT
             o.order_id, o.weight, 
@@ -616,6 +616,9 @@ class Database:
         ;
         """
         orders_and_statuses = await self.get(query)
+        if not orders_and_statuses:
+            return
+
         courier = await self.get_courier(courier_id)
 
         return CourierStatus(orders_and_statuses, courier)
