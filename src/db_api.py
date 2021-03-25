@@ -153,12 +153,17 @@ class _Status:
         return self.__dict__
 
     def json_dict(self) -> dict:
+        if assigned_time := self.assigned_time:
+            assigned_time = assigned_time.strftime(DATE_FORMAT)
+        if completed_time := self.completed_time:
+           completed_time =  completed_time.strftime(DATE_FORMAT)
+
         return {
             "id": str(self.id),
             "courier_id": str(self.courier_id),
             "order_id": str(self.order_id),
-            "assigned_time": self.assigned_time.strftime(DATE_FORMAT),
-            "completed_time": self.completed_time.strftime(DATE_FORMAT)
+            "assigned_time": assigned_time,
+            "completed_time": completed_time
         }
 
 
