@@ -227,8 +227,16 @@ async def assign(request: Request) -> response.HTTPResponse:
         error_logger.warning("Courier id=%s not found", courier_id)
         return response.HTTPResponse(status=400)
 
-    assigned_orders = await app.db.assign_orders(courier)
-    return response.json(assigned_orders)
+    orders, time = await app.db.assign_orders(courier.courier_id)
+    context = {
+        "orders": [
+            {"id": order.order_id}
+            for order in orders
+        ]
+    }
+    if time:
+        context["assign_time"] = time
+    return response.json(context, indent=4)
 
 
 @app.post('/orders/complete')
