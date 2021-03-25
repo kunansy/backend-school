@@ -82,10 +82,13 @@ class _Courier:
         self.coeff = int(courier.get('c'))
         self.payload = int(courier.get('payload'))
 
-    def json(self) -> dict:
+    def dict(self) -> dict:
+        return self.__dict__
+
+    def json_dict(self) -> dict:
         return {
             field: str(value)
-            for field, value in self.__dict__.items()
+            for field, value in self.dict().items()
         }
 
     def external(self) -> dict:

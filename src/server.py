@@ -165,7 +165,7 @@ async def get_courier(request: Request,
     # TODO: min, group by region
     # completed_orders = await app.db.get_completed_orders(courier.courier_id)
 
-    return response.json(courier.json(), indent=4)
+    return response.json(courier.json_dict(), indent=4)
 
 
 @app.post('/orders')
