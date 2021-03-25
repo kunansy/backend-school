@@ -1,6 +1,6 @@
 from dataclasses import dataclass
 from datetime import time, datetime
-from typing import List, Callable, Iterable, Dict
+from typing import List, Callable, Iterable, Dict, Optional
 
 import asyncpg
 from environs import Env
@@ -128,6 +128,38 @@ class _Order:
             TimeSpan(time_)
             for time_ in order.get('delivery_hours')
         ]
+
+
+@dataclass
+class _Status:
+    id: int
+    courier_id: int
+    order_id: int
+    assigned_time: Optional[datetime] = None
+    completed_time: Optional[datetime] = None
+
+    def __init__(self,
+                 status: asyncpg.Record) -> None:
+        self.id = status.get('id')
+        self.courier_id = status.get('courier_id')
+        self.order_id = status.get('order_id')
+
+        if assigned_time := status.get('assigned_time', None):
+            self.assigned_time = parse_date(assigned_time)
+        if completed_time := status.get('completed_time', None):
+            self.completed_time = parse_date(completed_time)
+
+    def dict(self) -> dict:
+        return self.__dict__
+
+    def json_dict(self) -> dict:
+        return {
+            "id": str(self.id),
+            "courier_id": str(self.courier_id),
+            "order_id": str(self.order_id),
+            "assigned_time": self.assigned_time.strftime(DATE_FORMAT),
+            "completed_time": self.completed_time.strftime(DATE_FORMAT)
+        }
 
 
 def async_cache(func: Callable) -> Callable:
