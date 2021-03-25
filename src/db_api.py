@@ -162,7 +162,7 @@ class _Status:
         if assigned_time := self.assigned_time:
             assigned_time = assigned_time.strftime(DATE_FORMAT)
         if completed_time := self.completed_time:
-           completed_time =  completed_time.strftime(DATE_FORMAT)
+            completed_time = completed_time.strftime(DATE_FORMAT)
 
         return {
             "id": str(self.id),
@@ -377,7 +377,7 @@ class Database:
         logger.info("Couriers added")
 
     async def get_courier(self,
-                          courier_id: int) -> _Courier or None:
+                          courier_id: int) -> Optional[_Courier]:
         query = f"""
         SELECT 
             c.courier_id, t.type, c.regions, 
@@ -426,10 +426,7 @@ class Database:
             for record in uncompleted_orders_ids
         )
 
-        uncompleted_orders_condition = f"""
-        WHERE 
-            order_id IN ({uncompleted_orders_ids})
-        """
+        uncompleted_orders_condition = f"order_id IN ({uncompleted_orders_ids})"
         return await self.get_orders(uncompleted_orders_condition)
 
     async def _get_free_orders(self) -> List[_Order]:
@@ -542,7 +539,7 @@ class Database:
         """
         logger.info("Getting orders by %s", condition)
         orders = await self.get(query)
-        logger("Found %s orders", len(orders))
+        logger.info("Found %s orders", len(orders))
 
         return [
             _Order(order)
@@ -595,7 +592,7 @@ class Database:
             f"""(
             {courier_id}::INTEGER,
             {order.order_id}::INTEGER,
-            {now_}::VARCHAR)
+            '{now_}'::VARCHAR)
             """
             for order in valid_orders
         )
@@ -608,7 +605,7 @@ class Database:
         ;
         """
 
-        logger.info("Assigning %s orders to Courier id=%",
+        logger.info("Assigning %s orders to Courier id=%s",
                     len(valid_orders), courier_id)
         await self.execute_t(query)
         logger.info("Orders assigned")
