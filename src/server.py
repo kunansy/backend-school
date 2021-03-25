@@ -7,7 +7,7 @@ from typing import List
 from environs import Env
 from pydantic import ValidationError
 from sanic import Sanic, response
-from sanic.exceptions import ServerError, abort
+from sanic.exceptions import ServerError
 from sanic.log import error_logger
 from sanic.request import Request
 from sanic_openapi import swagger_blueprint, doc
