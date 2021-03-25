@@ -171,9 +171,11 @@ class _Status:
 class CourierStatus:
     orders: List[_Order]
     statuses: List[_Status]
+    courier: _Courier
 
     def __init__(self,
-                 data: List[asyncpg.Record]) -> None:
+                 data: List[asyncpg.Record],
+                 courier: _Courier) -> None:
         self.orders = [
             _Order(order)
             for order in data
@@ -182,6 +184,7 @@ class CourierStatus:
             _Status(status)
             for status in data
         ]
+        self.courier = courier
 
 
 def async_cache(func: Callable) -> Callable:
