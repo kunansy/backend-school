@@ -1,6 +1,6 @@
 from dataclasses import dataclass
 from datetime import time, datetime
-from typing import List, Callable, Iterable, Dict, Optional
+from typing import List, Callable, Iterable, Dict, Optional, Tuple
 
 import asyncpg
 from environs import Env
@@ -570,12 +570,12 @@ class Database:
         logger.info("Orders added")
 
     async def assign_orders(self,
-                            courier_id: int) -> List[_Order]:
+                            courier_id: int) -> Tuple[List[_Order], str]:
         courier = await self.get_courier(courier_id)
         free_orders = await self._get_free_orders()
 
-        if not free_orders:
-            return []
+        if not (free_orders and courier):
+            return [], ''
 
         valid_orders = [
             order
@@ -584,7 +584,7 @@ class Database:
         ]
 
         if not valid_orders:
-            return []
+            return [], ''
 
         now_ = now()
 
@@ -610,7 +610,7 @@ class Database:
         await self.execute_t(query)
         logger.info("Orders assigned")
 
-        return valid_orders
+        return valid_orders, now_
 
     async def courier_status(self,
                              courier_id: int) -> Optional[CourierStatus]:
