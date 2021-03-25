@@ -473,7 +473,7 @@ class Database:
         logger.debug("Orders cancelled")
 
     async def update_courier(self,
-                             **data):
+                             **data) -> _Courier:
         courier_id = data.pop('courier_id')
 
         values, is_first = "", True
@@ -524,7 +524,7 @@ class Database:
 
         await self.cancel_orders(orders_to_cancel)
 
-        return updated_courier
+        return courier
 
     async def get_orders(self,
                          condition: str) -> List[_Order]:
