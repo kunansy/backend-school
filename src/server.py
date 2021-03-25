@@ -92,13 +92,15 @@ async def add_couriers(request: Request) -> response.HTTPResponse:
             courier = CourierModel(**courier)
         except ValidationError as e:
             invalid_couriers_id += [courier.get('courier_id', -1)]
-            error_logger.error(e.json(indent=4))
+            error_logger.warning(e.json(indent=4))
         else:
             couriers += [courier]
 
     if invalid_couriers_id:
-        error_logger.error("Request rejected, it contains invalid "
-                           f"couriers ({len(invalid_couriers_id)})")
+        error_logger.warning(
+            "Request rejected, it contains invalid couriers (%s)",
+            len(invalid_couriers_id)
+        )
         context = validation_error('couriers', invalid_couriers_id)
         return response.json(context, status=400)
 
@@ -124,14 +126,14 @@ async def add_couriers(request: Request) -> response.HTTPResponse:
 async def update_courier(request: Request,
                          courier_id: int) -> response.HTTPResponse:
     if invalid_fields := is_json_patching_courier_valid(request.json):
-        error_logger.error(f"Only {PATCHABLE_FIELDS} might be "
-                           f"updated, but {invalid_fields} found")
+        error_logger.warning("Only %s might be updated, but %s found",
+                             PATCHABLE_FIELDS, invalid_fields)
         return response.HTTPResponse(status=400)
 
     courier = await app.db.get_courier(courier_id)
 
     if not courier:
-        error_logger.error(f"Courier ({courier_id}) not found")
+        error_logger.warning("Courier id=%s not found", courier_id)
         return response.HTTPResponse(status=400)
 
     courier = CourierModel(**courier.external())
@@ -140,7 +142,7 @@ async def update_courier(request: Request,
         courier_data = {**courier.dict(), **request.json}
         updated_courier = CourierModel(**courier_data)
     except ValidationError as e:
-        error_logger.error(e.json(indent=4))
+        error_logger.warning(e.json(indent=4))
         return response.HTTPResponse(status=400)
 
     await app.db.update_courier(
@@ -162,7 +164,7 @@ async def get_courier(request: Request,
                       courier_id: int) -> response.HTTPResponse:
     courier = await app.db.get_courier(courier_id)
     if not courier:
-        error_logger.warning(f"Courier {courier_id=} not found")
+        error_logger.warning("Courier id=%s not found", courier_id)
         return response.HTTPResponse(status=400)
 
     # TODO: min, group by region
@@ -187,13 +189,15 @@ async def add_orders(request: Request) -> response.HTTPResponse:
             order = OrderModel(**order)
         except ValidationError as e:
             invalid_orders_id += [order.get('order_id', -1)]
-            error_logger.error(e.json(indent=4))
+            error_logger.warning(e.json(indent=4))
         else:
             orders += [order]
 
     if invalid_orders_id:
-        error_logger.error("Request rejected, it contains invalid "
-                           f"orders ({len(invalid_orders_id)})")
+        error_logger.warning(
+            "Request rejected, it contains invalid orders (%s)",
+            len(invalid_orders_id)
+        )
         context = validation_error('orders', invalid_orders_id)
         return response.json(context, status=400)
 
@@ -220,7 +224,7 @@ async def assign(request: Request) -> response.HTTPResponse:
     courier_id = request.json.get('courier_id', -1)
 
     if (courier := await app.db.get_courier(courier_id)) is None:
-        error_logger.error(f"Courier with {courier_id=} not found")
+        error_logger.warning("Courier id=%s not found", courier_id)
         return response.HTTPResponse(status=400)
 
     assigned_orders = await app.db.assign_orders(courier)
@@ -238,24 +242,28 @@ async def complete(request: Request) -> response.HTTPResponse:
     try:
         complete = CompleteModel(**request.json)
     except ValidationError as e:
-        error_logger.error(f"Invalid complete request\n{e.json(indent=4)}")
+        error_logger.warning(e.json(indent=4))
         return response.HTTPResponse(status=400)
 
     if (courier := await app.db.get_courier(complete.courier_id)) is None:
-        error_logger.error(f"Courier with {complete.courier_id} not found")
+        error_logger.warning("Courier id=%s not found",
+                             complete.courier_id)
         return response.HTTPResponse(status=400)
     if (order := await app.db.get_order(complete.order_id)) is None:
-        error_logger.error(f"Order with {complete.order_id} not found")
+        error_logger.warning("Order id=%s not found",
+                             complete.order_id)
         return response.HTTPResponse(status=400)
 
     if (assign_info := await app.db.status(order.order_id)) is None:
-        error_logger.error(f"Order {order.order_id} was not assigned")
+        error_logger.warning("Order id=%s was not assigned",
+                             complete.order_id)
         return response.HTTPResponse(status=400)
 
     if (assigned_courier := assign_info.courier.courier_id) != courier.courier_id:
-        error_logger.error(
-            f"{order.order_id=} assigned to {assigned_courier.courier_id} "
-            f"courier, but {courier.courier_id} found"
+        error_logger.warning(
+            "%s assigned to courier id=%s, but %s found",
+            order.order_id, assigned_courier.courier_id,
+            courier.courier_id
         )
         return response.HTTPResponse(status=400)
 
