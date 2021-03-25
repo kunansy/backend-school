@@ -104,10 +104,13 @@ class _Courier:
         }
 
     def is_order_valid(self, order) -> bool:
-        is_time_intercept = any(
-            w_time | d_time
-            for w_time, d_time in zip(self.working_hours, order.delivery_hours)
-        )
+        is_time_intercept = False
+        for w_time in self.working_hours:
+            for d_time in order.delivery_hours:
+                if w_time | d_time:
+                    is_time_intercept = True
+                    break
+
         return (
             order.weight <= self.payload and
             order.region in self.regions and
