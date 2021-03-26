@@ -271,31 +271,25 @@ async def complete(request: Request) -> response.HTTPResponse:
         error_logger.warning(e.json(indent=4))
         return response.HTTPResponse(status=400)
 
-    if (courier := await app.db.get_courier(complete.courier_id)) is None:
-        error_logger.warning("Courier id=%s not found",
-                             complete.courier_id)
-        return response.HTTPResponse(status=400)
-    if (order := await app.db.get_order(complete.order_id)) is None:
-        error_logger.warning("Order id=%s not found",
-                             complete.order_id)
+    courier_status = await app.db.courier_status(complete.courier_id)
+
+    if courier_status is None:
+        error_logger.warning("Courier id=%s not found", complete.courier_id)
         return response.HTTPResponse(status=400)
 
-    if (assign_info := await app.db.status(order.order_id)) is None:
-        error_logger.warning("Order id=%s was not assigned",
-                             complete.order_id)
+    has_the_courier_order = any(
+        order.order_id == complete.order_id
+        for order in courier_status.orders
+    )
+    if not has_the_courier_order:
+        error_logger.warning("Courier id=%s has no order id=%s",
+                             complete.courier_id, complete.order_id)
         return response.HTTPResponse(status=400)
 
-    if (assigned_courier := assign_info.courier.courier_id) != courier.courier_id:
-        error_logger.warning(
-            "%s assigned to courier id=%s, but %s found",
-            order.order_id, assigned_courier.courier_id,
-            courier.courier_id
-        )
-        return response.HTTPResponse(status=400)
+    await app.db.complete_order(
+        complete.order_id, complete.complete_time)
 
-    await app.db.complete_order(complete)
-
-    return response.json(complete.dict(include={'courier_id'}))
+    return response.json({"order_id": complete.order_id})
 
 
 @app.get('/')
