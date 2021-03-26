@@ -86,9 +86,17 @@ class _Courier:
         return self.__dict__
 
     def json_dict(self) -> dict:
+        working_hours = [
+            str(span)
+            for span in self.working_hours
+        ]
         return {
-            field: str(value)
-            for field, value in self.dict().items()
+            "courier_id": self.courier_id,
+            "courier_type": self.courier_type,
+            "regions": self.regions,
+            "working_hours": working_hours,
+            "c": self.coeff,
+            "payload": self.payload
         }
 
     def external(self) -> dict:
