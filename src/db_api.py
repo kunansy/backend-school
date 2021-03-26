@@ -579,6 +579,8 @@ class Database:
 
     async def assign_orders(self,
                             courier_id: int) -> Tuple[List[_Order], str]:
+        # TODO: add delivery_id to the status table
+        #  and to _Status, make it autoincrement
         courier = await self.get_courier(courier_id)
         free_orders = await self._get_free_orders()
 
