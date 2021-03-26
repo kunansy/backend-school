@@ -136,7 +136,8 @@ async def add_couriers(request: Request) -> response.HTTPResponse:
 @doc.consumes(doc.JsonBody({"regions": List[int], "courier_type": str, "working_hours": str}),
               required=True, location="body", content_type="application/json")
 @doc.response(200, CourierModel.schema(), description="Courier updated")
-@doc.response(400, None, description="Courier not found or wrong field given")
+@doc.response(404, None, description="Courier not found")
+@doc.response(400, None, description="Bad request")
 async def update_courier(request: Request,
                          courier_id: int) -> response.HTTPResponse:
     if invalid_fields := is_json_patching_courier_valid(request.json):
@@ -148,7 +149,7 @@ async def update_courier(request: Request,
 
     if not courier:
         error_logger.warning("Courier id=%s not found", courier_id)
-        return response.HTTPResponse(status=400)
+        return response.HTTPResponse(status=404)
 
     courier = CourierModel(**courier.external())
 
@@ -173,13 +174,13 @@ async def update_courier(request: Request,
 @doc.description("Also calculate additional info: rating, salary")
 @doc.response(200, CourierModel.schema().update({"rating": float, "earning": float}),
               description="Courier info calculated and sent")
-@doc.response(400, None, description="Courier not found")
+@doc.response(404, None, description="Courier not found")
 async def get_courier(request: Request,
                       courier_id: int) -> response.HTTPResponse:
     courier_status = await app.db.courier_status(courier_id)
     if not courier_status:
         error_logger.warning("Courier id=%s not found", courier_id)
-        return response.HTTPResponse(status=400)
+        return response.HTTPResponse(status=404)
 
     # TODO: move it to thread_pool_executor
     completed_orders_ids = {
