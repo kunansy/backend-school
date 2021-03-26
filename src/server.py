@@ -21,7 +21,7 @@ sys.path += [
 
 from src.db_api import Database
 import src.logging_config as logging_config
-from src.model import CourierModel, validation_error, OrderModel, CompleteModel
+from src.model import CourierModel, OrderModel, CompleteModel
 
 
 os.environ['PYTHONWARNINGS'] = 'ignore'
@@ -29,6 +29,20 @@ os.environ['PYTHONWARNINGS'] = 'ignore'
 PATCHABLE_FIELDS = [
     'courier_type', 'regions', 'working_hours'
 ]
+VALIDATION_ERROR_TEMPLATE = {
+    "validation_error": {}
+}
+
+
+def validation_error(field_name: str,
+                     ids: List[int]) -> dict:
+    error_message = VALIDATION_ERROR_TEMPLATE.copy()
+    error_message['validation_error'][field_name] = [
+        {"id": id_}
+        for id_ in ids
+    ]
+
+    return error_message
 
 
 def is_json_patching_courier_valid(json_dict: dict) -> List[str]:
