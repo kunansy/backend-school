@@ -1,29 +1,18 @@
-from datetime import time, datetime
+from datetime import datetime
 from typing import Any, Dict, List
 
 from pydantic import BaseModel, conlist, validator, conint, \
     confloat
 
 
-VALIDATION_ERROR_TEMPLATE = {
-    "validation_error": {}
-}
 DATE_FORMAT = "%Y-%m-%dT%H:%M:%S.%fZ"
+POSSIBLE_COURIER_TYPES = [
+    'foot', 'bike', 'car'
+]
 
 
-def validation_error(field_name: str,
-                     ids: List[int]) -> dict:
-    error_message = VALIDATION_ERROR_TEMPLATE.copy()
-    error_message['validation_error'][field_name] = [
-        {"id": id_}
-        for id_ in ids
-    ]
-
-    return error_message
-
-
-def validate_time(time_: str) -> str:
-    start, stop = time_.split('-')
+def validate_time(time: str) -> str:
+    start, stop = time.split('-')
 
     start = datetime.strptime(start, "%H:%M").time()
     stop = datetime.strptime(stop, "%H:%M").time()
@@ -31,7 +20,7 @@ def validate_time(time_: str) -> str:
     if start >= stop:
         raise ValueError
 
-    return time_
+    return time
 
 
 class CourierModel(BaseModel):
@@ -46,16 +35,13 @@ class CourierModel(BaseModel):
     @validator('courier_type')
     def courier_type_validator(cls,
                                value: str) -> str:
-        possible_courier_types = ['foot', 'bike', 'car']
-
-        if (value := value.lower()) in possible_courier_types:
+        if (value := value.lower()) in POSSIBLE_COURIER_TYPES:
             return value
         raise ValueError
 
     @validator('working_hours')
     def working_hours_validator(cls,
                                 value: List[str]) -> List[str]:
-        # TODO: ISO 8601, RFC 3339
         return [
             validate_time(working_hours)
             for working_hours in value
@@ -75,12 +61,6 @@ class CourierModel(BaseModel):
                 self.courier_type == other.courier_type and
                 self.regions == other.regions and
                 self.working_hours == other.working_hours)
-        # TODO: wtf: this code doesn't work, I mean it
-        #  returns false when items are equal
-        # return all(
-        #     getattr(other, name) == value
-        #     for name, value in self.__fields__.items()
-        # )
 
 
 class OrderModel(BaseModel):
