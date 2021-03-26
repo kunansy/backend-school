@@ -5,7 +5,7 @@
 - [x] install and configure PostgreSQL
 - [x] ~~install and configure pgbouncer~~ There's connection pool in aiopg/asyncpg, therefore pgbouncer is needless.
 - [x] ~~install and configure ASGI~~ Application server is built into Sanic
-- [ ] configure systemd to restart the service after rebooting
+- [x] configure systemd to restart the service after rebooting
 - [ ] learn `docker` library and use it to make tests 
 - [x] learn `asyncpg`
 - [ ] add mock tests
