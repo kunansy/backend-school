@@ -20,7 +20,7 @@ sys.path += [
 
 
 from src.db_api import Database
-import src.logging_config as logging_config
+from src.logging_config import LOGGING_CONFIG
 from src.model import CourierModel, OrderModel, CompleteModel
 
 
@@ -58,7 +58,7 @@ def is_json_patching_courier_valid(json_dict: dict) -> List[str]:
     return list(json_dict.keys())
 
 
-app = Sanic(__name__, log_config=logging_config.LOGGING_CONFIG)
+app = Sanic(__name__, log_config=LOGGING_CONFIG)
 app.blueprint(swagger_blueprint)
 app.db = Database()
 
@@ -215,6 +215,9 @@ async def get_courier(request: Request,
 @doc.response(400, {"validation_error": {"orders": [{"id": int}]}},
               description="Some of orders are invalid")
 async def add_orders(request: Request) -> response.HTTPResponse:
+    if not request.json.get('data'):
+        return response.json({'orders': []})
+
     orders, invalid_orders_id = [], []
     for order in request.json['data']:
         try:
