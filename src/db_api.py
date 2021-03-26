@@ -680,5 +680,18 @@ class Database:
         return await self.get(query)
 
     async def complete_order(self,
-                             complete) -> None:
-        pass
+                             order_id: int,
+                             completed_time: str) -> None:
+        logger.info("Completing order id=%s, time=%s",
+                    order_id, completed_time)
+        query = f"""
+        UPDATE 
+            status
+        SET
+            completed_time = '{completed_time}'::VARCHAR
+        WHERE
+            order_id = {order_id}::INTEGER
+        ;
+        """
+        await self.execute_t(query)
+        logger.info("Order completed")
