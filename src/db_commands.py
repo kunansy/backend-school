@@ -51,19 +51,4 @@ COMMANDS = {
         "order": CREATE_ORDER_TABLE,
         "status": CREATE_STATUS_TABLE
     },
-    "get": {
-        "courier": "SELECT {fields} FROM couriers",
-        "courier_type": "SELECT {fields} FROM courier_types",
-        "order": "SELECT {fields} FROM orders",
-        "status": "SELECT {fields} FROM status"
-    },
-    "insert": {
-        "courier": "INSERT INTO couriers VALUES {values}",
-        "order": "INSERT INTO orders VALUES {values}",
-        "order_type": "INSERT INTO courier_types VALUES {values}",
-    },
-    "update": {
-        "UPDATE couriers SET {fields} WHERE {condition}"
-    },
-    "delete": {}
 }
