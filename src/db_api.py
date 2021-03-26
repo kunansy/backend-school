@@ -201,18 +201,6 @@ class CourierStatus:
         self.courier = courier
 
 
-def async_cache(func: Callable) -> Callable:
-    results = []
-
-    async def wrapped(*args, **kwargs) -> List[str]:
-        nonlocal results
-        results = results or await func(*args, **kwargs)
-
-        return results
-
-    return wrapped
-
-
 def now() -> str:
     return datetime.now().strftime(DATE_FORMAT)
 
