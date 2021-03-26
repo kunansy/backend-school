@@ -8,6 +8,7 @@ from pydantic import BaseModel, conlist, validator, conint, \
 VALIDATION_ERROR_TEMPLATE = {
     "validation_error": {}
 }
+DATE_FORMAT = "%Y-%m-%dT%H:%M:%S.%fZ"
 
 
 def validation_error(field_name: str,
@@ -120,8 +121,8 @@ class CompleteModel(BaseModel):
 
     @validator('complete_time')
     def complete_time_validator(cls,
-                                value: str):
-        # TODO: here there's ISO<bla-bla-bla> standard
+                                value: str) -> str:
+        datetime.strptime(value, DATE_FORMAT)
         return value
 
     @classmethod
