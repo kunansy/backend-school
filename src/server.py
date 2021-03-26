@@ -173,8 +173,13 @@ async def get_courier(request: Request,
         for status in courier_status.statuses
         if status.completed_time is not None
     }
+
+    json = courier_status.courier.json_dict()
+    json.pop('c', None)
+    json.pop('payload', None)
+
     if not completed_orders_ids:
-        return response.HTTPResponse({"orders": []})
+        return response.json(json, indent=4)
 
     completed_orders = [
         order
@@ -183,10 +188,7 @@ async def get_courier(request: Request,
     ]
     completed_orders.sort(key=lambda order: order.completed_time)
 
-    # TODO: min, group by region
-    # completed_orders = await app.db.get_completed_orders(courier.courier_id)
-
-    return response.json(courier_status.__dict__, indent=4)
+    return response.json(json, indent=4)
 
 
 @app.post('/orders')
