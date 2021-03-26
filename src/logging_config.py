@@ -1,6 +1,6 @@
+import logging
 import os
 import sys
-from logging import Filter, LogRecord
 from typing import List
 
 from environs import Env
@@ -9,7 +9,8 @@ from environs import Env
 env = Env()
 env.read_env()
 
-BASE_MESSAGE_FORMAT = "[%(asctime)s] [%(name)s:%(levelname)s] [%(module)s:%(funcName)s():%(process)d]"
+BASE_MESSAGE_FORMAT = "[%(asctime)s] [%(name)s:%(levelname)s] " \
+                      "[%(module)s:%(funcName)s():%(process)d]"
 DATE_FORMAT = "%d-%m-%Y %H:%M:%S"
 
 LOG_FOLDER = env.path('LOG_FOLDER')
@@ -21,18 +22,18 @@ except PermissionError as e:
     pass
 
 
-class LevelFilter(Filter):
+class LevelFilter(logging.Filter):
     def __init__(self,
                  levels: List[int] = None) -> None:
         self._levels = levels or []
         super().__init__(self.__class__.__name__)
 
     def filter(self,
-               record: LogRecord) -> bool:
+               record: logging.LogRecord) -> bool:
         return record.levelno in self._levels
 
 
-class DebugFilter(Filter):
+class DebugFilter(logging.Filter):
     """ The filter is designed to skip logging to file
     if DEBUG is True and skip logging to stream otherwise. """
     def __init__(self,
@@ -41,7 +42,7 @@ class DebugFilter(Filter):
         super().__init__(self.__class__.__name__)
 
     def filter(self,
-               record: LogRecord) -> bool:
+               record: logging.LogRecord) -> bool:
         return self._debug
 
 
