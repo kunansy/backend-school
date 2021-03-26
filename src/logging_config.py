@@ -52,11 +52,11 @@ LOGGING_CONFIG = {
     "filters": {
         "internalFilter": {
             "()": LevelFilter,
-            "levels": [0, 10, 20]
+            "levels": [logging.NOTSET, logging.DEBUG, logging.INFO]
         },
         "errorFilter": {
             "()": LevelFilter,
-            "levels": [30, 40, 50]
+            "levels": [logging.WARNING, logging.ERROR, logging.CRITICAL]
         },
         "debugFileFilter": {
             "()": DebugFilter,
