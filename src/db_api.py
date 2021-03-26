@@ -340,24 +340,6 @@ class Database:
             async with conn.transaction():
                 return await self._execute(query, conn)
 
-    @async_cache
-    async def get_courier_types(self) -> List[str]:
-        query = f"""
-        SELECT 
-            type
-        FROM 
-            courier_types
-        ;
-        """
-        logger.info("Getting courier types")
-        records = await self.get(query)
-        logger.info("Courier types got")
-
-        return [
-            record.get('type')
-            for record in records
-        ]
-
     async def add_couriers(self,
                            couriers: list) -> None:
         if not couriers:
