@@ -242,7 +242,11 @@ class Database:
 
     async def close(self) -> None:
         logger.info("Closing connection to the database")
-        await self._pool.close()
+        try:
+            await self._pool.close()
+        except AttributeError:
+            logger.info("Connection was not created")
+            pass
         logger.info("Connection pool closed")
 
     async def migrate(self) -> None:
