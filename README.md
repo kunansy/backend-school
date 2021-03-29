@@ -1,7 +1,7 @@
 # _Candy Delivery App_ Documentation
 Version 1.0
 
-# Content table
+## Content table
 1. [Installing](#installing)
 2. [Updating](#updating)
 3. [Running](#running)
@@ -88,6 +88,7 @@ You can see docs, examples and try to use the service on `http://<host>:8080/swa
 
 ERD:
 ![](task/erd.jpg)
+There should be `delivery_id` in `status`. It would help to completed 6th handler, `get_courier()
 
 
 ## Testing
