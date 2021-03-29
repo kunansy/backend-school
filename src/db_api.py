@@ -14,6 +14,11 @@ TIME_FORMAT = "%H:%M"
 PATCHABLE_FIELDS = [
     'courier_type', 'regions', 'working_hours'
 ]
+DEFAULT_COURIER_TYPES = [
+    {"type": 'foot', 'c': 2, 'payload': 10},
+    {"type": 'bike', 'c': 5, 'payload': 15},
+    {"type": 'car', 'c': 9, 'payload': 50},
+]
 
 
 def is_json_patching_courier_valid(json_dict: dict) -> List[str]:
@@ -281,13 +286,16 @@ class Database:
     async def _fill_tables(conn: asyncpg.Connection) -> None:
         logger.info("Filling courier_types table")
 
+        values = ', '.join(
+            f"('{t['type']}', {t['c']}, {t['payload']})"
+            for t in DEFAULT_COURIER_TYPES
+        )
+
         query = f"""
         INSERT INTO
             courier_types (type, c, payload)
         VALUES
-            ('foot', 2, 10), 
-            ('bike', 5, 15), 
-            ('car', 9, 50)
+            {values}
         ;
         """
 
