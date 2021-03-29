@@ -119,9 +119,7 @@ async def update_courier(request: Request,
                              PATCHABLE_FIELDS, invalid_fields)
         return response.HTTPResponse(status=400)
 
-    courier = await app.db.get_courier(courier_id)
-
-    if not courier:
+    if (courier := await app.db.get_courier(courier_id)) is None:
         error_logger.warning("Courier id=%s not found", courier_id)
         return response.HTTPResponse(status=404)
 
