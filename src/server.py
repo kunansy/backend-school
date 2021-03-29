@@ -188,9 +188,6 @@ async def get_courier(request: Request,
 @doc.response(400, {"validation_error": {"orders": [{"id": int}]}},
               description="Some of orders are invalid")
 async def add_orders(request: Request) -> response.HTTPResponse:
-    if not request.json.get('data'):
-        return response.json({'orders': []})
-
     orders, invalid_orders_id = [], []
     for order in request.json['data']:
         try:
@@ -209,14 +206,8 @@ async def add_orders(request: Request) -> response.HTTPResponse:
         context = validation_error('orders', invalid_orders_id)
         return response.json(context, status=400)
 
-    await app.db.add_orders(orders)
+    added_orders = await app.db.add_orders(orders)
 
-    added_orders = {
-        "orders": [
-            {"id": order.order_id}
-            for order in orders
-        ]
-    }
     return response.json(added_orders, status=201)
 
 

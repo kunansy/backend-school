@@ -549,8 +549,11 @@ class Database:
         ]
 
     async def add_orders(self,
-                         orders: list) -> None:
-        orders = ', '.join(
+                         orders: list) -> dict:
+        if not orders:
+            return {"orders": []}
+
+        values = ', '.join(
             f"""(
             {order.order_id}::integer,
             {order.weight}::real,
@@ -564,12 +567,19 @@ class Database:
         INSERT INTO
             orders
         VALUES
-            {orders}
+            {values}
         ;
         """
         logger.info("Adding %s orders", len(orders))
         await self.execute_t(query)
         logger.info("Orders added")
+
+        return {
+            "orders": [
+                {"id": order.order_id}
+                for order in orders
+            ]
+        }
 
     async def assign_orders(self,
                             courier_id: int) -> Tuple[List[_Order], str]:
