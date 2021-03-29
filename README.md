@@ -1,6 +1,16 @@
 # _Candy Delivery App_ Documentation
 Version 1.0
 
+# Content table
+1. [Installing](#installing)
+2. [Updating](#updating)
+3. [Running](#running)
+4. [Docs](#docs)
+5. [Testing](#testing)
+6. [Benchmark](#benchmark)
+7. [Requirements](#requirements)
+
+
 ## Installing
 1. Download the source code.
 2. Create virtual environment and activate it:
