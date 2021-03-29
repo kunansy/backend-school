@@ -103,4 +103,4 @@ ab -n 5000 -c 500 http://<host>:8080/
 
 ## Requires
 * Python>=3.8
-* docker
+* docker-compose
