@@ -32,8 +32,8 @@ CREATE TABLE status (
     id SERIAL PRIMARY KEY,
     courier_id INTEGER REFERENCES couriers (courier_id) NOT NULL,
     order_id INTEGER REFERENCES orders (order_id) NOT NULL,
-    assigned_time TIME,
-    completed_time TIME
+    assigned_time VARCHAR,
+    completed_time VARCHAR
 );
 """
 
