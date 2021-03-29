@@ -88,6 +88,7 @@ pytest -svv tests/
 
 > To run tests you must have database run.
 
+
 ## Benchmark
 Also, you can see service productivity (RPS) and its performance.
 
@@ -101,6 +102,7 @@ ab -n 5000 -c 500 http://<host>:8080/
 ```
 
 
-## Requires
+## Requirements
 * Python>=3.8
 * docker-compose
+* Required Python packages are in `requirements.txt`
