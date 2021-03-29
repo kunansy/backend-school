@@ -161,9 +161,7 @@ async def get_courier(request: Request,
         if status.completed_time is not None
     }
 
-    json = courier_status.courier.json_dict()
-    json.pop('c', None)
-    json.pop('payload', None)
+    json = courier_status.courier.external()
 
     if not completed_orders_ids:
         return response.json(json, indent=4)
