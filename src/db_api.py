@@ -121,16 +121,11 @@ class _Courier:
         }
 
     def external(self) -> dict:
-        working_hours = [
-            str(h)
-            for h in self.working_hours
-        ]
-        return {
-            "courier_id": self.courier_id,
-            "courier_type": self.courier_type,
-            "regions": self.regions,
-            "working_hours": working_hours
-        }
+        json_dict = self.json_dict()
+        json_dict.pop('c')
+        json_dict.pop('payload')
+
+        return json_dict
 
     def is_order_valid(self, order) -> bool:
         is_time_intercept = False
