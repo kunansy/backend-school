@@ -80,9 +80,6 @@ async def close_db_connection(app: Sanic, loop) -> None:
 @doc.response(400, {"validation_error": {"couriers": [{"id": int}]}},
               description="Some of couriers are invalid")
 async def add_couriers(request: Request) -> response.HTTPResponse:
-    if not request.json.get('data'):
-        return response.json({'couriers': []})
-
     couriers, invalid_couriers_id = [], []
     for courier in request.json['data']:
         try:
@@ -101,14 +98,8 @@ async def add_couriers(request: Request) -> response.HTTPResponse:
         context = validation_error('couriers', invalid_couriers_id)
         return response.json(context, status=400)
 
-    await app.db.add_couriers(couriers)
+    added_couriers = await app.db.add_couriers(couriers)
 
-    added_couriers = {
-        "couriers": [
-            {"id": courier.courier_id}
-            for courier in couriers
-        ]
-    }
     return response.json(added_couriers, status=201)
 
 

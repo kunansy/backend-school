@@ -346,9 +346,9 @@ class Database:
                 return await self._execute(query, conn)
 
     async def add_couriers(self,
-                           couriers: list) -> None:
+                           couriers: list) -> dict:
         if not couriers:
-            return
+            return {"couriers": []}
 
         values = ', '.join(
             f"""(
@@ -370,6 +370,13 @@ class Database:
         logger.info("Adding %s couriers", len(couriers))
         await self.execute_t(query)
         logger.info("Couriers added")
+
+        return {
+            "couriers": [
+                {"id": courier.courier_id}
+                for courier in couriers
+            ]
+        }
 
     async def get_courier(self,
                           courier_id: int) -> Optional[_Courier]:
