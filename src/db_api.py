@@ -1,6 +1,6 @@
 from dataclasses import dataclass
 from datetime import time, datetime
-from typing import List, Callable, Iterable, Dict, Optional, Tuple
+from typing import List, Iterable, Dict, Optional, Tuple
 
 import asyncpg
 from environs import Env
@@ -10,6 +10,7 @@ from src.db_commands import COMMANDS, TABLES
 
 
 DATE_FORMAT = "%Y-%m-%dT%H:%M:%S.%fZ"
+TIME_FORMAT = "%H:%M"
 PATCHABLE_FIELDS = [
     'courier_type', 'regions', 'working_hours'
 ]
@@ -33,8 +34,6 @@ env.read_env()
 
 
 class TimeSpan:
-    TIME_FORMAT = "%H:%M"
-
     def __init__(self,
                  value: str) -> None:
         start, stop = value.split('-')
@@ -56,7 +55,7 @@ class TimeSpan:
     @classmethod
     def parse_time(cls,
                    time_string: str) -> time:
-        return datetime.strptime(time_string, cls.TIME_FORMAT).time()
+        return datetime.strptime(time_string, TIME_FORMAT).time()
 
     def is_intercept(self, other) -> bool:
         return self | other
@@ -67,8 +66,8 @@ class TimeSpan:
         return not(other.stop <= self.start)
 
     def __repr__(self) -> str:
-        return f"{self.start.strftime(self.TIME_FORMAT)}-" \
-               f"{self.stop.strftime(self.TIME_FORMAT)}"
+        return f"{self.start.strftime(TIME_FORMAT)}-" \
+               f"{self.stop.strftime(TIME_FORMAT)}"
 
     def __eq__(self, other) -> bool:
         return self.start == other.start and \
@@ -171,9 +170,9 @@ class _Status:
 
     def __init__(self,
                  status: asyncpg.Record) -> None:
-        self.id = status.get('id')
-        self.courier_id = status.get('courier_id')
-        self.order_id = status.get('order_id')
+        self.id = int(status.get('id'))
+        self.courier_id = int(status.get('courier_id'))
+        self.order_id = int(status.get('order_id'))
 
         if assigned_time := status.get('assigned_time', None):
             self.assigned_time = parse_date(assigned_time)
@@ -190,9 +189,9 @@ class _Status:
             completed_time = completed_time.strftime(DATE_FORMAT)
 
         return {
-            "id": str(self.id),
-            "courier_id": str(self.courier_id),
-            "order_id": str(self.order_id),
+            "id": self.id,
+            "courier_id": self.courier_id,
+            "order_id": self.order_id,
             "assigned_time": assigned_time,
             "completed_time": completed_time
         }
@@ -293,7 +292,7 @@ class Database:
         """
 
         await conn.execute(query)
-        logger.info("Courier_types filled")
+        logger.info("courier_types filled")
 
     async def _get(self,
                    query: str,
@@ -389,7 +388,7 @@ class Database:
         INNER JOIN 
             courier_types t ON c.courier_type = t.id
         WHERE 
-            c.courier_id = {courier_id}::integer
+            c.courier_id = {courier_id}::INTEGER
         ;
         """
         logger.info("Getting courier id=%s", courier_id)
@@ -500,7 +499,7 @@ class Database:
         SET 
             {values}
         WHERE 
-            courier_id = {courier_id}::integer
+            courier_id = {courier_id}::INTEGER
         RETURNING
             courier_id, 
             (SELECT t.type FROM courier_types t WHERE t.id = courier_type),
@@ -515,7 +514,6 @@ class Database:
         logger.info("Courier updated")
 
         courier = _Courier(updated_courier[0])
-
         uncompleted_orders = await self._get_uncompleted_orders(courier_id)
 
         orders_to_cancel = [
@@ -523,7 +521,6 @@ class Database:
             for order in uncompleted_orders
             if not courier.is_order_valid(order)
         ]
-
         await self.cancel_orders(orders_to_cancel)
 
         return courier
@@ -555,10 +552,10 @@ class Database:
 
         values = ', '.join(
             f"""(
-            {order.order_id}::integer,
-            {order.weight}::real,
-            {order.region}::integer,
-            ARRAY{order.delivery_hours}::varchar[]
+            {order.order_id}::INTEGER,
+            {order.weight}::REAL,
+            {order.region}::INTEGER,
+            ARRAY{order.delivery_hours}::VARCHAR[]
             )"""
             for order in orders
         )
