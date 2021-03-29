@@ -10,6 +10,23 @@ from src.db_commands import COMMANDS, TABLES
 
 
 DATE_FORMAT = "%Y-%m-%dT%H:%M:%S.%fZ"
+PATCHABLE_FIELDS = [
+    'courier_type', 'regions', 'working_hours'
+]
+
+
+def is_json_patching_courier_valid(json_dict: dict) -> List[str]:
+    """
+    Check whether the request to patch a courier valid
+
+    :return: list of invalid fields if there are.
+    """
+    json_dict = json_dict.copy()
+    for field in PATCHABLE_FIELDS:
+        json_dict.pop(field, None)
+
+    return list(json_dict.keys())
+
 
 env = Env()
 env.read_env()

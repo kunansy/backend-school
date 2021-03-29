@@ -19,16 +19,12 @@ sys.path += [
 ]
 
 
-from src.db_api import Database
+from src.db_api import Database, is_json_patching_courier_valid, PATCHABLE_FIELDS
 from src.logging_config import LOGGING_CONFIG
 from src.model import CourierModel, OrderModel, CompleteModel
 
 
 os.environ['PYTHONWARNINGS'] = 'ignore'
-
-PATCHABLE_FIELDS = [
-    'courier_type', 'regions', 'working_hours'
-]
 VALIDATION_ERROR_TEMPLATE = {
     "validation_error": {}
 }
@@ -43,19 +39,6 @@ def validation_error(field_name: str,
     ]
 
     return error_message
-
-
-def is_json_patching_courier_valid(json_dict: dict) -> List[str]:
-    """
-    Check whether the request to patch a courier valid
-
-    :return: list of invalid fields if there are.
-    """
-    json_dict = json_dict.copy()
-    for field in PATCHABLE_FIELDS:
-        json_dict.pop(field, None)
-
-    return list(json_dict.keys())
 
 
 app = Sanic(__name__, log_config=LOGGING_CONFIG)
